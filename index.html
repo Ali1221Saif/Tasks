@@ -34,6 +34,42 @@
       color: var(--text);
       line-height: 1.6;
       padding: 16px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .animated-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+      opacity: 0.2;
+    }
+
+    .bg-item {
+      position: absolute;
+      font-size: 20px;
+      animation: floatUp linear infinite;
+      will-change: transform, opacity;
+      opacity: 0;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.8;
+      }
+      80% {
+        opacity: 0.5;
+      }
+      100% {
+        transform: translateY(-110vh);
+        opacity: 0;
+      }
     }
 
     .container {
@@ -41,6 +77,8 @@
       margin: 0 auto;
       display: grid;
       gap: 16px;
+      position: relative;
+      z-index: 1;
     }
 
     .header-card {
@@ -224,6 +262,11 @@
       gap: 6px;
     }
 
+    .emoji-input {
+      font-size: 1.2rem;
+      text-align: center;
+    }
+
     label {
       font-weight: 700;
       font-size: 0.94rem;
@@ -286,6 +329,11 @@
       gap: 8px;
     }
 
+    .task-item.completed .task-name {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
     .task-head {
       display: flex;
       justify-content: space-between;
@@ -297,6 +345,7 @@
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
+      align-items: center;
     }
 
     .task-name {
@@ -361,6 +410,7 @@
       gap: 8px;
       color: var(--muted);
       font-size: 0.92rem;
+      user-select: none;
     }
 
     .task-done input[type="checkbox"] {
@@ -477,6 +527,62 @@
       display: none !important;
     }
 
+    .updates-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.48);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 16px;
+    }
+
+    .updates-modal-overlay.open {
+      display: flex;
+    }
+
+    .updates-modal {
+      width: 100%;
+      max-width: 600px;
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+      padding: 18px;
+    }
+
+    .updates-modal h3 {
+      margin-bottom: 10px;
+      color: #1e3a8a;
+    }
+
+    .updates-modal p {
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    .updates-modal ul {
+      margin: 8px 18px 14px 0;
+      color: #111827;
+      display: grid;
+      gap: 6px;
+    }
+
+    .updates-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .updates-version {
+      color: #64748b;
+      font-size: 0.88rem;
+      direction: ltr;
+    }
+
     .no-print {
       print-color-adjust: exact;
       -webkit-print-color-adjust: exact;
@@ -488,6 +594,11 @@
     }
 
     @media print {
+      .animated-bg,
+      .updates-modal-overlay {
+        display: none !important;
+      }
+
       body {
         background: #fff !important;
         padding: 0 !important;
@@ -535,6 +646,7 @@
   </style>
 </head>
 <body>
+  <div id="animatedBg" class="animated-bg" aria-hidden="true"></div>
   <div class="container">
     <header class="header-card">
       <div id="topDate" class="top-date"></div>
@@ -568,6 +680,10 @@
             <select id="savedTaskNameSelect">
               <option value="">-- اختر اسمًا محفوظًا --</option>
             </select>
+          </div>
+          <div class="field">
+            <label for="taskEmojiInput">إيموجي المهمة</label>
+            <input id="taskEmojiInput" class="emoji-input" type="text" maxlength="2" placeholder="📝" value="📝">
           </div>
           <div class="field">
             <label for="taskName">اسم المهمة</label>
@@ -727,15 +843,37 @@
     </section>
   </div>
 
+  <div id="updatesModalOverlay" class="updates-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="updatesTitle">
+    <div class="updates-modal">
+      <h3 id="updatesTitle">ما الجديد في هذا التحديث؟</h3>
+      <p>تم تحسين التطبيق وإضافة ميزات جديدة لتسهيل متابعة المهام وتحليلها بشكل أوضح وأكثر احترافية.</p>
+      <ul>
+        <li>حفظ أسماء المهام في قائمة منسدلة</li>
+        <li>إضافة إيموجي للمهام</li>
+        <li>إمكانية متابعة الإنجاز داخل التطبيق بعلامة الصح</li>
+        <li>إضافة صفحة إحصائيات ورسوم بيانية</li>
+        <li>تحسين الطباعة وتصدير PDF</li>
+      </ul>
+      <div class="updates-footer">
+        <span id="updatesVersionText" class="updates-version"></span>
+        <button id="dismissUpdatesBtn" class="btn-main">فهمت</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script>
+    const APP_VERSION = "1.4.0";
     const TASKS_KEY = "familyTasks_v2";
     const LEGACY_TASK_KEYS = ["familyTasks_v1"];
     const COLORS_KEY = "familyTheme_v1";
     const SAVED_NAMES_KEY = "familyTaskNames_v1";
+    const SAVED_NAME_META_KEY = "familyTaskNameMeta_v1";
     const COMPLETIONS_KEY = "familyTaskCompletions_v1";
+    const ACK_VERSION_KEY = "familyTaskAckVersion_v1";
+    const DEFAULT_EMOJI = "📝";
 
     const arabicDays = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
     const arabicTypeNames = {
@@ -759,10 +897,12 @@
     const backFromPreviewBtn = document.getElementById("backFromPreviewBtn");
     const backFromAnalyticsBtn = document.getElementById("backFromAnalyticsBtn");
     const manageHint = document.getElementById("manageHint");
+    const animatedBg = document.getElementById("animatedBg");
 
     const taskForm = document.getElementById("taskForm");
     const editingTaskIdInput = document.getElementById("editingTaskId");
     const savedTaskNameSelect = document.getElementById("savedTaskNameSelect");
+    const taskEmojiInput = document.getElementById("taskEmojiInput");
     const taskNameInput = document.getElementById("taskName");
     const taskCategorySelect = document.getElementById("taskCategory");
     const submitBtn = document.getElementById("submitBtn");
@@ -795,10 +935,14 @@
     const printAnalyticsBtn = document.getElementById("printAnalyticsBtn");
     const exportPdfBtn = document.getElementById("exportPdfBtn");
     const analyticsContent = document.getElementById("analyticsContent");
+    const updatesModalOverlay = document.getElementById("updatesModalOverlay");
+    const dismissUpdatesBtn = document.getElementById("dismissUpdatesBtn");
+    const updatesVersionText = document.getElementById("updatesVersionText");
 
     let tasks = loadTasks();
     let colors = loadColors();
     let savedTaskNames = loadSavedTaskNames();
+    let taskNameMeta = loadTaskNameMeta();
     let completions = loadCompletions();
     let frequencyChartInstance = null;
     let shareChartInstance = null;
@@ -808,7 +952,11 @@
       const safeType = ["daily", "specificDays", "weekly", "monthly"].includes(rawTask?.type)
         ? rawTask.type
         : "daily";
+      const safeEmoji = typeof rawTask?.emoji === "string" && rawTask.emoji.trim()
+        ? rawTask.emoji.trim()
+        : DEFAULT_EMOJI;
       return {
+        ...(rawTask && typeof rawTask === "object" ? rawTask : {}),
         id: String(rawTask?.id || `task-${Date.now()}-${index}`),
         name: String(rawTask?.name || "").trim(),
         category: ["تنظيف", "مشتريات", "العائلة", "أخرى"].includes(rawTask?.category)
@@ -816,7 +964,9 @@
           : "أخرى",
         type: safeType,
         days: Array.isArray(rawTask?.days) ? rawTask.days.filter((d) => Number.isInteger(d) && d >= 0 && d <= 6) : [],
-        monthlyDay: Number.isInteger(rawTask?.monthlyDay) ? Math.min(31, Math.max(1, rawTask.monthlyDay)) : 1
+        monthlyDay: Number.isInteger(rawTask?.monthlyDay) ? Math.min(31, Math.max(1, rawTask.monthlyDay)) : 1,
+        emoji: safeEmoji,
+        completed: Boolean(rawTask?.completed)
       };
     }
 
@@ -846,6 +996,35 @@
 
     function saveTasks() {
       localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+    }
+
+    function loadTaskNameMeta() {
+      const raw = localStorage.getItem(SAVED_NAME_META_KEY);
+      if (!raw) {
+        const fallback = {};
+        tasks.forEach((task) => {
+          if (task.name) fallback[task.name] = task.emoji || DEFAULT_EMOJI;
+        });
+        return fallback;
+      }
+      try {
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+        const result = {};
+        Object.keys(parsed).forEach((name) => {
+          const key = String(name).trim();
+          if (!key) return;
+          const emoji = typeof parsed[name] === "string" && parsed[name].trim() ? parsed[name].trim() : DEFAULT_EMOJI;
+          result[key] = emoji;
+        });
+        return result;
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function saveTaskNameMeta() {
+      localStorage.setItem(SAVED_NAME_META_KEY, JSON.stringify(taskNameMeta));
     }
 
     function loadSavedTaskNames() {
@@ -894,15 +1073,17 @@
       localStorage.setItem(COMPLETIONS_KEY, JSON.stringify(completions));
     }
 
-    function ensureTaskNameSaved(name) {
+    function ensureTaskNameSaved(name, emoji = DEFAULT_EMOJI) {
       const cleanName = String(name).trim();
       if (!cleanName) return;
       if (!savedTaskNames.includes(cleanName)) {
         savedTaskNames.push(cleanName);
         savedTaskNames.sort((a, b) => a.localeCompare(b, "ar"));
         saveSavedTaskNames();
-        renderSavedTaskNames();
       }
+      taskNameMeta[cleanName] = normalizeEmoji(emoji);
+      saveTaskNameMeta();
+      renderSavedTaskNames();
     }
 
     function renderSavedTaskNames() {
@@ -910,7 +1091,8 @@
       savedTaskNames.forEach((name) => {
         const option = document.createElement("option");
         option.value = name;
-        option.textContent = name;
+        const emoji = taskNameMeta[name] || DEFAULT_EMOJI;
+        option.textContent = `${emoji} ${name}`;
         savedTaskNameSelect.appendChild(option);
       });
     }
@@ -1007,10 +1189,17 @@
       return Math.min(31, Math.max(1, value));
     }
 
+    function normalizeEmoji(value) {
+      const text = String(value || "").trim();
+      if (!text) return DEFAULT_EMOJI;
+      return Array.from(text)[0] || DEFAULT_EMOJI;
+    }
+
     function resetFormToAdd() {
       editingTaskIdInput.value = "";
       taskForm.reset();
       savedTaskNameSelect.value = "";
+      taskEmojiInput.value = DEFAULT_EMOJI;
       submitBtn.textContent = "إضافة المهمة";
       cancelEditBtn.style.display = "none";
       setType("daily");
@@ -1022,6 +1211,7 @@
     function enterEditMode(task) {
       editingTaskIdInput.value = task.id;
       savedTaskNameSelect.value = "";
+      taskEmojiInput.value = task.emoji || taskNameMeta[task.name] || DEFAULT_EMOJI;
       taskNameInput.value = task.name;
       taskCategorySelect.value = task.category;
       setType(task.type);
@@ -1078,11 +1268,15 @@
       allTasksList.innerHTML = "";
       tasks.forEach((task) => {
         const item = document.createElement("div");
-        item.className = "task-item";
+        item.className = `task-item${task.completed ? " completed" : ""}`;
         item.innerHTML = `
           <div class="task-head">
-            <div class="task-name">${escapeHtml(task.name)}</div>
+            <div class="task-name">${escapeHtml(task.emoji || DEFAULT_EMOJI)} ${escapeHtml(task.name)}</div>
             <div class="task-actions">
+              <label class="task-done">
+                <input type="checkbox" data-action="toggle-completed" data-id="${task.id}" ${task.completed ? "checked" : ""}>
+                منجزة
+              </label>
               <button class="btn-edit" data-action="edit" data-id="${task.id}">تعديل</button>
               <button class="btn-delete" data-action="delete" data-id="${task.id}">حذف</button>
             </div>
@@ -1124,10 +1318,10 @@
         const block = document.createElement("div");
         block.className = "task-item";
         const tasksHtml = grouped[category].map((task) => `
-          <div class="preview-item">
+          <div class="preview-item ${task.completed ? "completed" : ""}">
             <div style="display:flex;align-items:center;gap:12px;">
               <span class="check-box"></span>
-              <span class="preview-task-text">${escapeHtml(task.name)}</span>
+              <span class="preview-task-text">${escapeHtml(task.emoji || DEFAULT_EMOJI)} ${escapeHtml(task.name)}</span>
             </div>
             <label class="task-done">
               <input type="checkbox" class="done-checkbox" data-task-id="${task.id}" data-task-name="${escapeHtml(task.name)}" data-date="${todayDate}" ${getCompletionForToday(task) ? "checked" : ""}>
@@ -1146,6 +1340,7 @@
     function handleSaveTask(event) {
       event.preventDefault();
       const name = taskNameInput.value.trim();
+      const emoji = normalizeEmoji(taskEmojiInput.value);
       const category = taskCategorySelect.value;
       const type = getSelectedType();
       const days = type === "specificDays" ? getSelectedDays() : [];
@@ -1164,20 +1359,22 @@
       if (editingId) {
         tasks = tasks.map((task) => {
           if (task.id !== editingId) return task;
-          return { ...task, name, category, type, days, monthlyDay };
+          return { ...task, name, emoji, category, type, days, monthlyDay };
         });
       } else {
         tasks.push({
           id: Date.now().toString(),
           name,
+          emoji,
           category,
           type,
           days,
-          monthlyDay
+          monthlyDay,
+          completed: false
         });
       }
 
-      ensureTaskNameSaved(name);
+      ensureTaskNameSaved(name, emoji);
       saveTasks();
       renderAllTasks();
       renderPreviewTasks();
@@ -1193,7 +1390,13 @@
       const task = tasks.find((t) => t.id === id);
       if (!task) return;
 
-      if (action === "delete") {
+      if (action === "toggle-completed") {
+        task.completed = button.checked;
+        saveTasks();
+        renderAllTasks();
+        renderPreviewTasks();
+        renderAnalytics();
+      } else if (action === "delete") {
         tasks = tasks.filter((t) => t.id !== id);
         saveTasks();
         renderAllTasks();
@@ -1213,14 +1416,17 @@
       const date = checkbox.dataset.date;
       const key = getCompletionKey(date, taskId);
       completions[key] = { taskId, taskName, date, completed: checkbox.checked };
+      tasks = tasks.map((task) => task.id === taskId ? { ...task, completed: checkbox.checked } : task);
+      saveTasks();
       saveCompletions();
+      renderAllTasks();
       renderAnalytics();
     }
 
     function buildAnalyticsData() {
       const completionsArray = Object.values(completions);
-      const hasCompletionData = completionsArray.length > 0;
-      const frequencySource = hasCompletionData ? completionsArray : tasks.map((task) => ({ taskName: task.name }));
+      const hasCompletionData = completionsArray.length > 0 || tasks.some((task) => Boolean(task.completed));
+      const frequencySource = tasks.map((task) => ({ taskName: task.name }));
 
       const countsByName = {};
       frequencySource.forEach((record) => {
@@ -1244,13 +1450,23 @@
       const uniqueTaskCount = ranking.length;
 
       const completionMap = {};
-      completionsArray.forEach((record) => {
-        if (!completionMap[record.taskName]) {
-          completionMap[record.taskName] = { total: 0, completed: 0 };
-        }
-        completionMap[record.taskName].total += 1;
-        if (record.completed) completionMap[record.taskName].completed += 1;
-      });
+      if (completionsArray.length > 0) {
+        completionsArray.forEach((record) => {
+          if (!completionMap[record.taskName]) {
+            completionMap[record.taskName] = { total: 0, completed: 0 };
+          }
+          completionMap[record.taskName].total += 1;
+          if (record.completed) completionMap[record.taskName].completed += 1;
+        });
+      } else {
+        tasks.forEach((task) => {
+          if (!completionMap[task.name]) {
+            completionMap[task.name] = { total: 0, completed: 0 };
+          }
+          completionMap[task.name].total += 1;
+          if (task.completed) completionMap[task.name].completed += 1;
+        });
+      }
 
       const completionRows = Object.keys(completionMap).map((name) => {
         const entry = completionMap[name];
@@ -1433,7 +1649,7 @@
         const itemsHtml = items.map((task) => `
           <li>
             <span class="box"></span>
-            <span>${escapeHtml(task.name)}</span>
+            <span>${escapeHtml(task.emoji || DEFAULT_EMOJI)} ${escapeHtml(task.name)}</span>
           </li>
         `).join("");
         return `
@@ -1587,6 +1803,7 @@
         exportedAt: new Date().toISOString(),
         tasks,
         savedTaskNames,
+        taskNameMeta,
         colors,
         completions
       };
@@ -1625,24 +1842,54 @@
         try {
           const parsed = JSON.parse(reader.result);
           if (Array.isArray(parsed.tasks)) {
-            tasks = parsed.tasks.map((task, index) => normalizeTask(task, index)).filter((task) => task.name);
+            const incomingTasks = parsed.tasks.map((task, index) => normalizeTask(task, index)).filter((task) => task.name);
+            const existingById = new Map(tasks.map((task) => [task.id, task]));
+            incomingTasks.forEach((task) => {
+              const old = existingById.get(task.id);
+              existingById.set(task.id, old ? { ...old, ...task } : task);
+            });
+            tasks = Array.from(existingById.values());
             saveTasks();
           }
+
           if (Array.isArray(parsed.savedTaskNames)) {
-            savedTaskNames = [...new Set(parsed.savedTaskNames.map((name) => String(name).trim()).filter(Boolean))];
-            saveSavedTaskNames();
-          } else {
+            const mergedNames = [
+              ...savedTaskNames,
+              ...parsed.savedTaskNames.map((name) => String(name).trim()).filter(Boolean)
+            ];
+            savedTaskNames = [...new Set(mergedNames)];
+          } else if (savedTaskNames.length === 0) {
             savedTaskNames = [...new Set(tasks.map((task) => task.name).filter(Boolean))];
-            saveSavedTaskNames();
           }
+          saveSavedTaskNames();
+
+          if (parsed.taskNameMeta && typeof parsed.taskNameMeta === "object" && !Array.isArray(parsed.taskNameMeta)) {
+            Object.keys(parsed.taskNameMeta).forEach((name) => {
+              const cleanName = String(name).trim();
+              if (!cleanName) return;
+              const emoji = typeof parsed.taskNameMeta[name] === "string" && parsed.taskNameMeta[name].trim()
+                ? parsed.taskNameMeta[name].trim()
+                : DEFAULT_EMOJI;
+              taskNameMeta[cleanName] = emoji;
+              if (!savedTaskNames.includes(cleanName)) savedTaskNames.push(cleanName);
+            });
+            saveSavedTaskNames();
+            saveTaskNameMeta();
+          }
+
           if (parsed.colors && typeof parsed.colors === "object") {
             colors = { ...loadColors(), ...parsed.colors };
             saveColors();
           }
           if (parsed.completions && typeof parsed.completions === "object") {
-            completions = normalizeImportedCompletions(parsed.completions);
+            const incomingCompletions = normalizeImportedCompletions(parsed.completions);
+            completions = { ...completions, ...incomingCompletions };
             saveCompletions();
           }
+
+          tasks.forEach((task) => {
+            ensureTaskNameSaved(task.name, task.emoji || taskNameMeta[task.name] || DEFAULT_EMOJI);
+          });
 
           applyColors();
           renderSavedTaskNames();
@@ -1656,6 +1903,35 @@
         }
       };
       reader.readAsText(file, "utf-8");
+    }
+
+    function maybeShowWhatsNewModal() {
+      const acknowledgedVersion = localStorage.getItem(ACK_VERSION_KEY);
+      updatesVersionText.textContent = `Version: ${APP_VERSION}`;
+      if (acknowledgedVersion === APP_VERSION) return;
+      updatesModalOverlay.classList.add("open");
+    }
+
+    function dismissWhatsNewModal() {
+      localStorage.setItem(ACK_VERSION_KEY, APP_VERSION);
+      updatesModalOverlay.classList.remove("open");
+    }
+
+    function initAnimatedBackground() {
+      if (!animatedBg) return;
+      const icons = ["✅", "📝", "📌", "📊", "📅", "✔️"];
+      const itemCount = 14;
+      for (let i = 0; i < itemCount; i += 1) {
+        const item = document.createElement("span");
+        item.className = "bg-item";
+        item.textContent = icons[i % icons.length];
+        item.style.left = `${Math.random() * 100}%`;
+        item.style.bottom = `${-10 - Math.random() * 60}px`;
+        item.style.animationDuration = `${14 + Math.random() * 18}s`;
+        item.style.animationDelay = `${Math.random() * 8}s`;
+        item.style.fontSize = `${16 + Math.random() * 14}px`;
+        animatedBg.appendChild(item);
+      }
     }
 
     function escapeHtml(value) {
@@ -1698,14 +1974,19 @@
       importDataFromJsonFile(event.target.files?.[0] || null);
       jsonFileInput.value = "";
     });
+    dismissUpdatesBtn.addEventListener("click", dismissWhatsNewModal);
     document.querySelectorAll('input[name="taskType"]').forEach((radio) => {
       radio.addEventListener("change", toggleTypeBoxes);
     });
     savedTaskNameSelect.addEventListener("change", () => {
       if (savedTaskNameSelect.value) {
         taskNameInput.value = savedTaskNameSelect.value;
+        taskEmojiInput.value = taskNameMeta[savedTaskNameSelect.value] || DEFAULT_EMOJI;
         taskNameInput.focus();
       }
+    });
+    taskEmojiInput.addEventListener("blur", () => {
+      taskEmojiInput.value = normalizeEmoji(taskEmojiInput.value);
     });
 
     titleColorInput.addEventListener("input", () => {
@@ -1731,10 +2012,12 @@
       renderAnalytics();
     });
 
-    tasks.forEach((task) => ensureTaskNameSaved(task.name));
+    tasks.forEach((task) => ensureTaskNameSaved(task.name, task.emoji || DEFAULT_EMOJI));
     applyColors();
     renderSavedTaskNames();
     updateTopDate();
+    initAnimatedBackground();
+    maybeShowWhatsNewModal();
     toggleTypeBoxes();
     resetFormToAdd();
     renderAllTasks();
