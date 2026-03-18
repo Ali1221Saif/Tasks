@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مدير مهام العائلة</title>
+  <style>
+    :root {
+      --bg-1: #eff6ff;
+      --bg-2: #f8fafc;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --teal: #0f766e;
+      --danger: #dc2626;
+      --border: #e2e8f0;
+      --radius: 14px;
+      --shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+      --shadow-soft: 0 4px 14px rgba(15, 23, 42, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Tahoma", "Arial", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(145deg, var(--bg-1), var(--bg-2));
+      color: var(--text);
+      line-height: 1.65;
+      padding: 16px;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      padding: 16px;
+    }
+
+    .hero {
+      background: linear-gradient(140deg, #1d4ed8, #0ea5e9);
+      color: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .hero h1 {
+      font-size: 1.75rem;
+      margin-bottom: 6px;
+    }
+
+    .hero p {
+      color: #e8f3ff;
+      font-size: 0.98rem;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+      font-size: 1.18rem;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .stat {
+      background: #f8fbff;
+      border: 1px solid #dbeafe;
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      color: #1e40af;
+      font-size: 1.2rem;
+    }
+
+    .stat span {
+      color: #334155;
+      font-size: 0.88rem;
+    }
+
+    form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      background: #fff;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .schedule-types {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .option {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+
+    .option:has(input:checked) {
+      border-color: #93c5fd;
+      background: #eff6ff;
+    }
+
+    .type-box {
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 10px;
+      background: #fcfdff;
+      display: none;
+    }
+
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(80px, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 700;
+      transition: 0.15s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-cancel {
+      background: #e2e8f0;
+      color: #1e293b;
+      display: none;
+    }
+
+    .btn-cancel:hover {
+      background: #cbd5e1;
+    }
+
+    .btn-print {
+      background: var(--teal);
+      color: #fff;
+    }
+
+    .btn-print:hover {
+      background: #0d625c;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .task-item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .task-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .task-name {
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .task-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-edit {
+      background: #dbeafe;
+      color: #1d4ed8;
+      padding: 8px 12px;
+    }
+
+    .btn-edit:hover {
+      background: #bfdbfe;
+    }
+
+    .btn-delete {
+      background: #fee2e2;
+      color: var(--danger);
+      padding: 8px 12px;
+    }
+
+    .btn-delete:hover {
+      background: #fecaca;
+    }
+
+    .category-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: #e0e7ff;
+      color: #3730a3;
+      font-weight: 700;
+    }
+
+    .today-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .empty {
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .edit-badge {
+      background: #fff7ed;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.85rem;
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .grid,
+      .schedule-types {
+        grid-template-columns: 1fr;
+      }
+
+      .days-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="card hero">
+      <h1>مدير مهام العائلة</h1>
+      <p>واجهة بسيطة وعصرية لتنظيم مهام البيت، متابعة مهام اليوم، والطباعة بسهولة.</p>
+    </section>
+
+    <section class="card">
+      <h2>إضافة أو تعديل مهمة</h2>
+      <div class="btn-row" style="margin-bottom:10px;">
+        <span id="editBadge" class="edit-badge">وضع التعديل مفعل</span>
+      </div>
+      <form id="taskForm">
+        <input id="editingTaskId" type="hidden">
+
+        <div class="grid">
+          <div class="field">
+            <label for="taskName">اسم المهمة</label>
+            <input id="taskName" type="text" placeholder="مثال: تنظيف المطبخ" required>
+          </div>
+
+          <div class="field">
+            <label for="taskCategory">التصنيف</label>
+            <select id="taskCategory">
+              <option value="تنظيف">تنظيف</option>
+              <option value="مشتريات">مشتريات</option>
+              <option value="العائلة">العائلة</option>
+              <option value="أخرى">أخرى</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>نوع المهمة</label>
+          <div class="schedule-types">
+            <label class="option"><input type="radio" name="taskType" value="daily" checked> يومي</label>
+            <label class="option"><input type="radio" name="taskType" value="specificDays"> أيام محددة</label>
+            <label class="option"><input type="radio" name="taskType" value="weekly"> أسبوعي</label>
+            <label class="option"><input type="radio" name="taskType" value="monthly"> شهري</label>
+          </div>
+        </div>
+
+        <div id="daysBox" class="type-box">
+          <p class="muted">اختر الأيام التي تريد تنفيذ المهمة فيها:</p>
+          <div class="days-grid">
+            <label class="option"><input type="checkbox" value="0" class="day-checkbox"> الأحد</label>
+            <label class="option"><input type="checkbox" value="1" class="day-checkbox"> الإثنين</label>
+            <label class="option"><input type="checkbox" value="2" class="day-checkbox"> الثلاثاء</label>
+            <label class="option"><input type="checkbox" value="3" class="day-checkbox"> الأربعاء</label>
+            <label class="option"><input type="checkbox" value="4" class="day-checkbox"> الخميس</label>
+            <label class="option"><input type="checkbox" value="5" class="day-checkbox"> الجمعة</label>
+            <label class="option"><input type="checkbox" value="6" class="day-checkbox"> السبت</label>
+          </div>
+        </div>
+
+        <div id="monthlyBox" class="type-box">
+          <div class="field">
+            <label for="monthlyDayInput">يوم التنفيذ الشهري (1 - 31)</label>
+            <input id="monthlyDayInput" type="number" min="1" max="31" value="1">
+          </div>
+          <p class="muted">مثال: إذا اخترت 10 فستظهر المهمة يوم 10 من كل شهر.</p>
+        </div>
+
+        <div class="btn-row">
+          <button id="submitBtn" type="submit" class="btn-primary">إضافة المهمة</button>
+          <button id="cancelEditBtn" type="button" class="btn-cancel">إلغاء التعديل</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>نظرة سريعة</h2>
+      <div class="stats">
+        <div class="stat">
+          <strong id="totalTasksCount">0</strong>
+          <span>إجمالي المهام</span>
+        </div>
+        <div class="stat">
+          <strong id="todayTasksCount">0</strong>
+          <span>مهام اليوم</span>
+        </div>
+        <div class="stat">
+          <strong id="monthlyTasksCount">0</strong>
+          <span>مهام شهرية</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="today-header">
+        <div>
+          <h2>مهام اليوم</h2>
+          <p id="todayInfo" class="muted"></p>
+        </div>
+        <button id="printBtn" class="btn-print">طباعة مهام اليوم</button>
+      </div>
+      <div id="todayTasksList" class="list"></div>
+    </section>
+
+    <section class="card">
+      <h2>كل المهام المحفوظة</h2>
+      <div id="allTasksList" class="list"></div>
+    </section>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "familyTasks_v2";
+
+    const arabicDays = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+    const arabicTypeNames = {
+      daily: "يومي",
+      specificDays: "أيام محددة",
+      weekly: "أسبوعي",
+      monthly: "شهري"
+    };
+
+    const taskForm = document.getElementById("taskForm");
+    const editingTaskIdInput = document.getElementById("editingTaskId");
+    const taskNameInput = document.getElementById("taskName");
+    const taskCategorySelect = document.getElementById("taskCategory");
+    const submitBtn = document.getElementById("submitBtn");
+    const cancelEditBtn = document.getElementById("cancelEditBtn");
+    const editBadge = document.getElementById("editBadge");
+    const daysBox = document.getElementById("daysBox");
+    const monthlyBox = document.getElementById("monthlyBox");
+    const monthlyDayInput = document.getElementById("monthlyDayInput");
+    const dayCheckboxes = document.querySelectorAll(".day-checkbox");
+    const todayInfo = document.getElementById("todayInfo");
+    const todayTasksList = document.getElementById("todayTasksList");
+    const allTasksList = document.getElementById("allTasksList");
+    const printBtn = document.getElementById("printBtn");
+    const totalTasksCount = document.getElementById("totalTasksCount");
+    const todayTasksCount = document.getElementById("todayTasksCount");
+    const monthlyTasksCount = document.getElementById("monthlyTasksCount");
+
+    let tasks = loadTasks();
+
+    function loadTasks() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveTasks() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    }
+
+    function getSelectedType() {
+      const selected = document.querySelector('input[name="taskType"]:checked');
+      return selected ? selected.value : "daily";
+    }
+
+    function getSelectedDays() {
+      return Array.from(dayCheckboxes)
+        .filter((checkbox) => checkbox.checked)
+        .map((checkbox) => Number(checkbox.value));
+    }
+
+    function setSelectedDays(days) {
+      dayCheckboxes.forEach((checkbox) => {
+        checkbox.checked = Array.isArray(days) && days.includes(Number(checkbox.value));
+      });
+    }
+
+    function getMonthlyDay() {
+      const monthlyDay = Number(monthlyDayInput.value);
+      if (Number.isNaN(monthlyDay)) return 1;
+      return Math.min(31, Math.max(1, monthlyDay));
+    }
+
+    function setType(type) {
+      const radio = document.querySelector(`input[name="taskType"][value="${type}"]`);
+      if (radio) radio.checked = true;
+      toggleTypeBoxes();
+    }
+
+    function toggleTypeBoxes() {
+      const type = getSelectedType();
+      daysBox.style.display = type === "specificDays" ? "block" : "none";
+      monthlyBox.style.display = type === "monthly" ? "block" : "none";
+    }
+
+    function enterCreateMode() {
+      editingTaskIdInput.value = "";
+      submitBtn.textContent = "إضافة المهمة";
+      cancelEditBtn.style.display = "none";
+      editBadge.style.display = "none";
+      taskForm.reset();
+      setType("daily");
+      setSelectedDays([]);
+      monthlyDayInput.value = "1";
+      taskNameInput.focus();
+    }
+
+    function enterEditMode(task) {
+      editingTaskIdInput.value = task.id;
+      taskNameInput.value = task.name;
+      taskCategorySelect.value = task.category;
+      setType(task.type);
+      setSelectedDays(task.days || []);
+      monthlyDayInput.value = String(task.monthlyDay || 1);
+      submitBtn.textContent = "حفظ التعديلات";
+      cancelEditBtn.style.display = "inline-block";
+      editBadge.style.display = "inline-block";
+      taskNameInput.focus();
+      taskNameInput.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    function formatDateArabic(dateObj) {
+      const year = dateObj.getFullYear();
+      const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+      const day = String(dateObj.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function getScheduleDescription(task) {
+      const typeLabel = arabicTypeNames[task.type] || task.type;
+      if (task.type === "specificDays" && task.days && task.days.length > 0) {
+        return `${typeLabel} - ${task.days.map((d) => arabicDays[d]).join("، ")}`;
+      }
+      if (task.type === "monthly") {
+        return `${typeLabel} - يوم ${task.monthlyDay || 1} من كل شهر`;
+      }
+      return typeLabel;
+    }
+
+    function renderAllTasks() {
+      if (tasks.length === 0) {
+        allTasksList.innerHTML = '<p class="empty">لا توجد مهام بعد. أضف أول مهمة الآن.</p>';
+        return;
+      }
+
+      allTasksList.innerHTML = "";
+      tasks.forEach((task) => {
+        const item = document.createElement("div");
+        item.className = "task-item";
+        item.innerHTML = `
+          <div class="task-head">
+            <div class="task-name">${escapeHtml(task.name)}</div>
+            <div class="task-actions">
+              <button class="btn-edit" data-action="edit" data-id="${task.id}">تعديل</button>
+              <button class="btn-delete" data-action="delete" data-id="${task.id}">حذف</button>
+            </div>
+          </div>
+          <div class="meta">
+            <span class="category-tag">${escapeHtml(task.category)}</span>
+            <span> | ${escapeHtml(getScheduleDescription(task))}</span>
+          </div>
+        `;
+        allTasksList.appendChild(item);
+      });
+    }
+
+    function isTaskForToday(task, todayDate) {
+      const dayOfWeek = todayDate.getDay();
+      const dayOfMonth = todayDate.getDate();
+
+      if (task.type === "daily") return true;
+      if (task.type === "specificDays") return Array.isArray(task.days) && task.days.includes(dayOfWeek);
+      if (task.type === "weekly") return true;
+      if (task.type === "monthly") return dayOfMonth === (task.monthlyDay || 1);
+      return false;
+    }
+
+    function getTodayTasks() {
+      const today = new Date();
+      return tasks.filter((task) => isTaskForToday(task, today));
+    }
+
+    function renderTodayTasks() {
+      const today = new Date();
+      const dayName = arabicDays[today.getDay()];
+      const dateText = formatDateArabic(today);
+      todayInfo.textContent = `اليوم: ${dayName} - التاريخ: ${dateText}`;
+
+      const todayTasks = getTodayTasks();
+      if (todayTasks.length === 0) {
+        todayTasksList.innerHTML = '<p class="empty">لا توجد مهام مطلوبة اليوم.</p>';
+        return;
+      }
+
+      todayTasksList.innerHTML = "";
+      todayTasks.forEach((task) => {
+        const item = document.createElement("div");
+        item.className = "task-item";
+        item.innerHTML = `
+          <div class="task-head">
+            <div class="task-name">${escapeHtml(task.name)}</div>
+          </div>
+          <div class="meta">
+            <span class="category-tag">${escapeHtml(task.category)}</span>
+            <span> | ${escapeHtml(getScheduleDescription(task))}</span>
+          </div>
+        `;
+        todayTasksList.appendChild(item);
+      });
+    }
+
+    function renderStats() {
+      const todayTasks = getTodayTasks();
+      const monthlyCount = tasks.filter((task) => task.type === "monthly").length;
+      totalTasksCount.textContent = String(tasks.length);
+      todayTasksCount.textContent = String(todayTasks.length);
+      monthlyTasksCount.textContent = String(monthlyCount);
+    }
+
+    function renderAll() {
+      renderAllTasks();
+      renderTodayTasks();
+      renderStats();
+    }
+
+    function deleteTask(taskId) {
+      tasks = tasks.filter((task) => task.id !== taskId);
+      saveTasks();
+      if (editingTaskIdInput.value === taskId) {
+        enterCreateMode();
+      }
+      renderAll();
+    }
+
+    function validateForm(type, name, days, monthlyDay) {
+      if (!name) {
+        alert("من فضلك اكتب اسم المهمة.");
+        return false;
+      }
+      if (type === "specificDays" && days.length === 0) {
+        alert("من فضلك اختر يومًا واحدًا على الأقل.");
+        return false;
+      }
+      if (type === "monthly" && (monthlyDay < 1 || monthlyDay > 31)) {
+        alert("من فضلك اختر يومًا شهريًا صحيحًا من 1 إلى 31.");
+        return false;
+      }
+      return true;
+    }
+
+    function handleSaveTask(event) {
+      event.preventDefault();
+
+      const name = taskNameInput.value.trim();
+      const category = taskCategorySelect.value;
+      const type = getSelectedType();
+      const days = type === "specificDays" ? getSelectedDays() : [];
+      const monthlyDay = type === "monthly" ? getMonthlyDay() : 1;
+
+      if (!validateForm(type, name, days, monthlyDay)) return;
+
+      const editingId = editingTaskIdInput.value;
+      if (editingId) {
+        tasks = tasks.map((task) => {
+          if (task.id !== editingId) return task;
+          return {
+            ...task,
+            name,
+            category,
+            type,
+            days,
+            monthlyDay
+          };
+        });
+      } else {
+        tasks.push({
+          id: Date.now().toString(),
+          name,
+          category,
+          type,
+          days,
+          monthlyDay
+        });
+      }
+
+      saveTasks();
+      renderAll();
+      enterCreateMode();
+    }
+
+    function handleListClick(event) {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+
+      const taskId = button.dataset.id;
+      const action = button.dataset.action;
+      const task = tasks.find((item) => item.id === taskId);
+      if (!task) return;
+
+      if (action === "delete") {
+        deleteTask(taskId);
+      } else if (action === "edit") {
+        enterEditMode(task);
+      }
+    }
+
+    function groupTasksByCategory(list) {
+      const groups = {
+        تنظيف: [],
+        مشتريات: [],
+        العائلة: [],
+        أخرى: []
+      };
+      list.forEach((task) => {
+        const category = groups[task.category] ? task.category : "أخرى";
+        groups[category].push(task);
+      });
+      return groups;
+    }
+
+    function printTodayTasks() {
+      const today = new Date();
+      const dayName = arabicDays[today.getDay()];
+      const dateText = formatDateArabic(today);
+      const todayTasks = getTodayTasks();
+      const grouped = groupTasksByCategory(todayTasks);
+
+      const sectionsHtml = Object.keys(grouped).map((category) => {
+        const items = grouped[category];
+        if (items.length === 0) return "";
+
+        const itemsHtml = items.map((task) => `
+          <li>
+            <span class="box">☐</span>
+            <span>${escapeHtml(task.name)}</span>
+          </li>
+        `).join("");
+
+        return `
+          <section>
+            <h3>${category}</h3>
+            <ul>${itemsHtml}</ul>
+          </section>
+        `;
+      }).join("");
+
+      const printableContent = sectionsHtml || "<p>لا توجد مهام مطلوبة اليوم.</p>";
+
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        alert("لم نتمكن من فتح نافذة الطباعة. تأكد من السماح بالنوافذ المنبثقة.");
+        return;
+      }
+
+      const html = `
+        <!DOCTYPE html>
+        <html lang="ar" dir="rtl">
+        <head>
+          <meta charset="UTF-8">
+          <title>طباعة مهام اليوم</title>
+          <style>
+            body {
+              font-family: Tahoma, Arial, sans-serif;
+              padding: 24px;
+              color: #111827;
+              line-height: 1.7;
+            }
+            h1 {
+              margin: 0 0 8px;
+              font-size: 24px;
+            }
+            .meta {
+              color: #374151;
+              margin-bottom: 16px;
+            }
+            section {
+              margin-bottom: 16px;
+            }
+            h3 {
+              margin-bottom: 8px;
+              border-bottom: 1px solid #d1d5db;
+              padding-bottom: 4px;
+            }
+            ul {
+              list-style: none;
+              margin: 0;
+              padding: 0;
+            }
+            li {
+              margin-bottom: 8px;
+              display: flex;
+              align-items: flex-start;
+              gap: 8px;
+            }
+            .box {
+              font-size: 18px;
+              line-height: 1;
+            }
+            .footer {
+              margin-top: 30px;
+              border-top: 1px dashed #9ca3af;
+              padding-top: 12px;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>ورقة مهام اليوم</h1>
+          <p class="meta">اليوم: ${dayName} - التاريخ: ${dateText}</p>
+          ${printableContent}
+          <div class="footer">تم التنفيذ بواسطة: ____________________</div>
+          <script>
+            window.onload = function () {
+              window.print();
+            };
+          <\/script>
+        </body>
+        </html>
+      `;
+
+      printWindow.document.open();
+      printWindow.document.write(html);
+      printWindow.document.close();
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    document.querySelectorAll('input[name="taskType"]').forEach((radio) => {
+      radio.addEventListener("change", toggleTypeBoxes);
+    });
+    taskForm.addEventListener("submit", handleSaveTask);
+    cancelEditBtn.addEventListener("click", enterCreateMode);
+    allTasksList.addEventListener("click", handleListClick);
+    printBtn.addEventListener("click", printTodayTasks);
+
+    enterCreateMode();
+    renderAll();
+  </script>
+</body>
+</html>
