@@ -104,7 +104,7 @@
     .home-buttons {
       display: grid;
       gap: 10px;
-      grid-template-columns: repeat(2, minmax(150px, 1fr));
+      grid-template-columns: repeat(3, minmax(150px, 1fr));
     }
 
     button {
@@ -166,6 +166,33 @@
       background: #0d625c;
     }
 
+    .btn-pdf {
+      background: #7c3aed;
+      color: #fff;
+    }
+
+    .btn-pdf:hover {
+      background: #6d28d9;
+    }
+
+    .btn-export {
+      background: #065f46;
+      color: #fff;
+    }
+
+    .btn-export:hover {
+      background: #064e3b;
+    }
+
+    .btn-import {
+      background: #0f766e;
+      color: #fff;
+    }
+
+    .btn-import:hover {
+      background: #0b6159;
+    }
+
     .btn-row {
       display: flex;
       flex-wrap: wrap;
@@ -183,6 +210,12 @@
       display: grid;
       gap: 12px;
       grid-template-columns: 1fr 1fr;
+    }
+
+    .grid-3 {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1fr 1fr 1fr;
     }
 
     .field {
@@ -298,11 +331,13 @@
     .preview-item {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 12px;
       background: #fff;
+      justify-content: space-between;
+      flex-wrap: wrap;
     }
 
     .check-box {
@@ -318,6 +353,21 @@
       color: var(--task-color);
       font-weight: 700;
       font-size: 1.02rem;
+    }
+
+    .task-done {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .task-done input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--box-color);
+      cursor: pointer;
     }
 
     .color-grid {
@@ -346,11 +396,127 @@
       cursor: pointer;
     }
 
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .stat-card strong {
+      display: block;
+      color: #1d4ed8;
+      font-size: 1.2rem;
+      margin-bottom: 2px;
+    }
+
+    .stat-card span {
+      color: #334155;
+      font-size: 0.86rem;
+    }
+
+    .analytics-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .analytics-box {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .ranking-list {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 0;
+    }
+
+    .ranking-list li {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: #1f2937;
+      background: #fff;
+      font-size: 0.95rem;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      min-height: 280px;
+    }
+
+    .canvas-wrap canvas {
+      width: 100% !important;
+      height: 280px !important;
+    }
+
+    .analytics-note {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .no-print {
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body {
+        background: #fff !important;
+        padding: 0 !important;
+      }
+
+      body.print-analytics .header-card,
+      body.print-analytics #homeView,
+      body.print-analytics #manageView,
+      body.print-analytics #previewView,
+      body.print-analytics #analyticsView .no-print {
+        display: none !important;
+      }
+
+      body.print-analytics #analyticsView {
+        display: block !important;
+        box-shadow: none;
+        border: none;
+        padding: 0;
+      }
+    }
+
     @media (max-width: 768px) {
       .home-buttons,
       .grid,
+      .grid-3,
       .schedule-types,
-      .color-grid {
+      .color-grid,
+      .analytics-layout,
+      .stats-grid {
         grid-template-columns: 1fr;
       }
 
@@ -383,6 +549,7 @@
         <button id="goEditBtn" class="btn-main">تعديل قائمة</button>
         <button id="goDeleteBtn" class="btn-main">حذف قائمة</button>
         <button id="goPreviewBtn" class="btn-main">معاينة القائمة</button>
+        <button id="goAnalyticsBtn" class="btn-main">التحليلات والإحصائيات</button>
       </div>
     </section>
 
@@ -395,7 +562,13 @@
 
       <form id="taskForm">
         <input id="editingTaskId" type="hidden">
-        <div class="grid">
+        <div class="grid-3">
+          <div class="field">
+            <label for="savedTaskNameSelect">اسم محفوظ سابقًا</label>
+            <select id="savedTaskNameSelect">
+              <option value="">-- اختر اسمًا محفوظًا --</option>
+            </select>
+          </div>
           <div class="field">
             <label for="taskName">اسم المهمة</label>
             <input id="taskName" type="text" placeholder="مثال: تنظيف المطبخ" required>
@@ -447,6 +620,13 @@
         </div>
       </form>
 
+      <h2 style="margin-top:16px;">نسخ احتياطي للبيانات</h2>
+      <div class="btn-row">
+        <button id="exportJsonBtn" class="btn-export">تصدير البيانات JSON</button>
+        <button id="importJsonBtn" class="btn-import">استيراد البيانات JSON</button>
+        <input id="jsonFileInput" type="file" accept="application/json" class="hidden">
+      </div>
+
       <h2 style="margin-top:16px;">تخصيص الألوان</h2>
       <div class="color-grid">
         <div class="color-field">
@@ -480,11 +660,82 @@
       <div id="previewTasksList" class="list"></div>
       <button id="printBtn" class="btn-print">طباعة القائمة</button>
     </section>
+
+    <section id="analyticsView" class="card view">
+      <div class="btn-row no-print">
+        <button id="backFromAnalyticsBtn" class="btn-back">الرجوع للرئيسية</button>
+        <button id="printAnalyticsBtn" class="btn-main">طباعة التحليلات</button>
+        <button id="exportPdfBtn" class="btn-pdf">تصدير PDF</button>
+      </div>
+
+      <div id="analyticsContent">
+        <h2>لوحة التحليلات</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <strong id="statTotalTasks">0</strong>
+            <span>إجمالي المهام</span>
+          </div>
+          <div class="stat-card">
+            <strong id="statUniqueTasks">0</strong>
+            <span>عدد الأسماء الفريدة</span>
+          </div>
+          <div class="stat-card">
+            <strong id="statMostRepeated">-</strong>
+            <span>الأكثر تكرارًا</span>
+          </div>
+          <div class="stat-card">
+            <strong id="statLeastRepeated">-</strong>
+            <span>الأقل تكرارًا</span>
+          </div>
+        </div>
+
+        <div class="analytics-layout">
+          <div class="analytics-box">
+            <h3>ترتيب التكرار (من الأعلى للأقل)</h3>
+            <ul id="rankingList" class="ranking-list"></ul>
+          </div>
+          <div class="analytics-box">
+            <h3>توزيع النسبة المئوية للمهام</h3>
+            <ul id="shareList" class="ranking-list"></ul>
+          </div>
+        </div>
+
+        <div class="analytics-layout" style="margin-top: 14px;">
+          <div class="analytics-box">
+            <h3>رسم بياني: تكرار المهام</h3>
+            <div class="canvas-wrap">
+              <canvas id="frequencyChart"></canvas>
+            </div>
+          </div>
+          <div class="analytics-box">
+            <h3>رسم بياني: النسبة المئوية</h3>
+            <div class="canvas-wrap">
+              <canvas id="shareChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div id="completionSection" class="analytics-box" style="margin-top:14px;">
+          <h3>تحليل الإنجاز (يعتمد على علامات الإنجاز اليومية)</h3>
+          <p id="completionSummary" class="muted"></p>
+          <div class="canvas-wrap">
+            <canvas id="completionChart"></canvas>
+          </div>
+          <p class="analytics-note">إذا لم يتم تعليم المهام كمنجزة بعد، سيظهر هذا القسم بدون بيانات تفصيلية.</p>
+        </div>
+      </div>
+    </section>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script>
     const TASKS_KEY = "familyTasks_v2";
+    const LEGACY_TASK_KEYS = ["familyTasks_v1"];
     const COLORS_KEY = "familyTheme_v1";
+    const SAVED_NAMES_KEY = "familyTaskNames_v1";
+    const COMPLETIONS_KEY = "familyTaskCompletions_v1";
 
     const arabicDays = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
     const arabicTypeNames = {
@@ -498,16 +749,20 @@
     const homeView = document.getElementById("homeView");
     const manageView = document.getElementById("manageView");
     const previewView = document.getElementById("previewView");
+    const analyticsView = document.getElementById("analyticsView");
     const goAddBtn = document.getElementById("goAddBtn");
     const goEditBtn = document.getElementById("goEditBtn");
     const goDeleteBtn = document.getElementById("goDeleteBtn");
     const goPreviewBtn = document.getElementById("goPreviewBtn");
+    const goAnalyticsBtn = document.getElementById("goAnalyticsBtn");
     const backFromManageBtn = document.getElementById("backFromManageBtn");
     const backFromPreviewBtn = document.getElementById("backFromPreviewBtn");
+    const backFromAnalyticsBtn = document.getElementById("backFromAnalyticsBtn");
     const manageHint = document.getElementById("manageHint");
 
     const taskForm = document.getElementById("taskForm");
     const editingTaskIdInput = document.getElementById("editingTaskId");
+    const savedTaskNameSelect = document.getElementById("savedTaskNameSelect");
     const taskNameInput = document.getElementById("taskName");
     const taskCategorySelect = document.getElementById("taskCategory");
     const submitBtn = document.getElementById("submitBtn");
@@ -520,21 +775,70 @@
     const todayInfo = document.getElementById("todayInfo");
     const previewTasksList = document.getElementById("previewTasksList");
     const printBtn = document.getElementById("printBtn");
+    const exportJsonBtn = document.getElementById("exportJsonBtn");
+    const importJsonBtn = document.getElementById("importJsonBtn");
+    const jsonFileInput = document.getElementById("jsonFileInput");
 
     const titleColorInput = document.getElementById("titleColorInput");
     const dateColorInput = document.getElementById("dateColorInput");
     const taskColorInput = document.getElementById("taskColorInput");
     const boxColorInput = document.getElementById("boxColorInput");
 
+    const statTotalTasks = document.getElementById("statTotalTasks");
+    const statUniqueTasks = document.getElementById("statUniqueTasks");
+    const statMostRepeated = document.getElementById("statMostRepeated");
+    const statLeastRepeated = document.getElementById("statLeastRepeated");
+    const rankingList = document.getElementById("rankingList");
+    const shareList = document.getElementById("shareList");
+    const completionSummary = document.getElementById("completionSummary");
+    const completionSection = document.getElementById("completionSection");
+    const printAnalyticsBtn = document.getElementById("printAnalyticsBtn");
+    const exportPdfBtn = document.getElementById("exportPdfBtn");
+    const analyticsContent = document.getElementById("analyticsContent");
+
     let tasks = loadTasks();
     let colors = loadColors();
+    let savedTaskNames = loadSavedTaskNames();
+    let completions = loadCompletions();
+    let frequencyChartInstance = null;
+    let shareChartInstance = null;
+    let completionChartInstance = null;
+
+    function normalizeTask(rawTask, index = 0) {
+      const safeType = ["daily", "specificDays", "weekly", "monthly"].includes(rawTask?.type)
+        ? rawTask.type
+        : "daily";
+      return {
+        id: String(rawTask?.id || `task-${Date.now()}-${index}`),
+        name: String(rawTask?.name || "").trim(),
+        category: ["تنظيف", "مشتريات", "العائلة", "أخرى"].includes(rawTask?.category)
+          ? rawTask.category
+          : "أخرى",
+        type: safeType,
+        days: Array.isArray(rawTask?.days) ? rawTask.days.filter((d) => Number.isInteger(d) && d >= 0 && d <= 6) : [],
+        monthlyDay: Number.isInteger(rawTask?.monthlyDay) ? Math.min(31, Math.max(1, rawTask.monthlyDay)) : 1
+      };
+    }
 
     function loadTasks() {
-      const raw = localStorage.getItem(TASKS_KEY);
+      let raw = localStorage.getItem(TASKS_KEY);
+      if (!raw) {
+        for (const legacyKey of LEGACY_TASK_KEYS) {
+          const legacyRaw = localStorage.getItem(legacyKey);
+          if (legacyRaw) {
+            raw = legacyRaw;
+            break;
+          }
+        }
+      }
       if (!raw) return [];
       try {
         const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
+        const normalized = Array.isArray(parsed)
+          ? parsed.map((task, index) => normalizeTask(task, index)).filter((task) => task.name)
+          : [];
+        localStorage.setItem(TASKS_KEY, JSON.stringify(normalized));
+        return normalized;
       } catch (error) {
         return [];
       }
@@ -542,6 +846,73 @@
 
     function saveTasks() {
       localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+    }
+
+    function loadSavedTaskNames() {
+      const raw = localStorage.getItem(SAVED_NAMES_KEY);
+      try {
+        const parsed = raw ? JSON.parse(raw) : [];
+        const normalized = Array.isArray(parsed)
+          ? parsed.map((name) => String(name).trim()).filter(Boolean)
+          : [];
+        if (normalized.length > 0) return [...new Set(normalized)];
+      } catch (error) {
+        // Ignore invalid structure and fallback.
+      }
+      return [...new Set(tasks.map((task) => task.name).filter(Boolean))];
+    }
+
+    function saveSavedTaskNames() {
+      localStorage.setItem(SAVED_NAMES_KEY, JSON.stringify(savedTaskNames));
+    }
+
+    function loadCompletions() {
+      const raw = localStorage.getItem(COMPLETIONS_KEY);
+      if (!raw) return {};
+      try {
+        const parsed = JSON.parse(raw);
+        if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return {};
+        const result = {};
+        Object.keys(parsed).forEach((key) => {
+          const record = parsed[key];
+          if (!record || typeof record !== "object") return;
+          if (!record.taskId || !record.taskName || !record.date) return;
+          result[key] = {
+            taskId: String(record.taskId),
+            taskName: String(record.taskName),
+            date: String(record.date),
+            completed: Boolean(record.completed)
+          };
+        });
+        return result;
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function saveCompletions() {
+      localStorage.setItem(COMPLETIONS_KEY, JSON.stringify(completions));
+    }
+
+    function ensureTaskNameSaved(name) {
+      const cleanName = String(name).trim();
+      if (!cleanName) return;
+      if (!savedTaskNames.includes(cleanName)) {
+        savedTaskNames.push(cleanName);
+        savedTaskNames.sort((a, b) => a.localeCompare(b, "ar"));
+        saveSavedTaskNames();
+        renderSavedTaskNames();
+      }
+    }
+
+    function renderSavedTaskNames() {
+      savedTaskNameSelect.innerHTML = '<option value="">-- اختر اسمًا محفوظًا --</option>';
+      savedTaskNames.forEach((name) => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        savedTaskNameSelect.appendChild(option);
+      });
     }
 
     function loadColors() {
@@ -576,11 +947,13 @@
     }
 
     function showView(viewName) {
-      [homeView, manageView, previewView].forEach((view) => view.classList.remove("active"));
+      [homeView, manageView, previewView, analyticsView].forEach((view) => view.classList.remove("active"));
       if (viewName === "home") homeView.classList.add("active");
       if (viewName === "manage") manageView.classList.add("active");
       if (viewName === "preview") previewView.classList.add("active");
+      if (viewName === "analytics") analyticsView.classList.add("active");
       if (viewName === "preview") renderPreviewTasks();
+      if (viewName === "analytics") renderAnalytics();
     }
 
     function formatDate(dateObj) {
@@ -637,6 +1010,7 @@
     function resetFormToAdd() {
       editingTaskIdInput.value = "";
       taskForm.reset();
+      savedTaskNameSelect.value = "";
       submitBtn.textContent = "إضافة المهمة";
       cancelEditBtn.style.display = "none";
       setType("daily");
@@ -647,6 +1021,7 @@
 
     function enterEditMode(task) {
       editingTaskIdInput.value = task.id;
+      savedTaskNameSelect.value = "";
       taskNameInput.value = task.name;
       taskCategorySelect.value = task.category;
       setType(task.type);
@@ -671,6 +1046,16 @@
     function getTodayTasks() {
       const today = new Date();
       return tasks.filter((task) => isTaskForToday(task, today));
+    }
+
+    function getCompletionKey(dateText, taskId) {
+      return `${dateText}__${taskId}`;
+    }
+
+    function getCompletionForToday(task) {
+      const todayDate = formatDate(new Date());
+      const key = getCompletionKey(todayDate, task.id);
+      return completions[key]?.completed === true;
     }
 
     function getScheduleText(task) {
@@ -723,6 +1108,7 @@
     function renderPreviewTasks() {
       const today = new Date();
       todayInfo.textContent = formatDayAndDateLabel(today);
+      const todayDate = formatDate(today);
 
       const todayTasks = getTodayTasks();
       const grouped = groupTasksByCategory(todayTasks);
@@ -739,8 +1125,14 @@
         block.className = "task-item";
         const tasksHtml = grouped[category].map((task) => `
           <div class="preview-item">
-            <span class="check-box"></span>
-            <span class="preview-task-text">${escapeHtml(task.name)}</span>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span class="check-box"></span>
+              <span class="preview-task-text">${escapeHtml(task.name)}</span>
+            </div>
+            <label class="task-done">
+              <input type="checkbox" class="done-checkbox" data-task-id="${task.id}" data-task-name="${escapeHtml(task.name)}" data-date="${todayDate}" ${getCompletionForToday(task) ? "checked" : ""}>
+              تم الإنجاز
+            </label>
           </div>
         `).join("");
         block.innerHTML = `
@@ -785,8 +1177,11 @@
         });
       }
 
+      ensureTaskNameSaved(name);
       saveTasks();
       renderAllTasks();
+      renderPreviewTasks();
+      renderAnalytics();
       resetFormToAdd();
     }
 
@@ -803,10 +1198,227 @@
         saveTasks();
         renderAllTasks();
         renderPreviewTasks();
+        renderAnalytics();
         if (editingTaskIdInput.value === id) resetFormToAdd();
       } else if (action === "edit") {
         enterEditMode(task);
       }
+    }
+
+    function handlePreviewCompletionChange(event) {
+      const checkbox = event.target.closest(".done-checkbox");
+      if (!checkbox) return;
+      const taskId = checkbox.dataset.taskId;
+      const taskName = checkbox.dataset.taskName;
+      const date = checkbox.dataset.date;
+      const key = getCompletionKey(date, taskId);
+      completions[key] = { taskId, taskName, date, completed: checkbox.checked };
+      saveCompletions();
+      renderAnalytics();
+    }
+
+    function buildAnalyticsData() {
+      const completionsArray = Object.values(completions);
+      const hasCompletionData = completionsArray.length > 0;
+      const frequencySource = hasCompletionData ? completionsArray : tasks.map((task) => ({ taskName: task.name }));
+
+      const countsByName = {};
+      frequencySource.forEach((record) => {
+        const name = record.taskName;
+        if (!name) return;
+        countsByName[name] = (countsByName[name] || 0) + 1;
+      });
+
+      const ranking = Object.entries(countsByName)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count);
+
+      const totalCount = ranking.reduce((sum, item) => sum + item.count, 0);
+      const shares = ranking.map((item) => ({
+        ...item,
+        share: totalCount > 0 ? (item.count / totalCount) * 100 : 0
+      }));
+
+      const mostRepeated = ranking.length ? ranking[0] : null;
+      const leastRepeated = ranking.length ? ranking[ranking.length - 1] : null;
+      const uniqueTaskCount = ranking.length;
+
+      const completionMap = {};
+      completionsArray.forEach((record) => {
+        if (!completionMap[record.taskName]) {
+          completionMap[record.taskName] = { total: 0, completed: 0 };
+        }
+        completionMap[record.taskName].total += 1;
+        if (record.completed) completionMap[record.taskName].completed += 1;
+      });
+
+      const completionRows = Object.keys(completionMap).map((name) => {
+        const entry = completionMap[name];
+        return {
+          name,
+          total: entry.total,
+          completed: entry.completed,
+          rate: entry.total > 0 ? (entry.completed / entry.total) * 100 : 0
+        };
+      }).sort((a, b) => b.rate - a.rate);
+
+      return {
+        hasCompletionData,
+        totalCount,
+        uniqueTaskCount,
+        mostRepeated,
+        leastRepeated,
+        ranking,
+        shares,
+        completionRows,
+        topCompletion: completionRows.length ? completionRows[0] : null,
+        lowCompletion: completionRows.length ? completionRows[completionRows.length - 1] : null
+      };
+    }
+
+    function renderAnalyticsLists(data) {
+      statTotalTasks.textContent = String(tasks.length);
+      statUniqueTasks.textContent = String(data.uniqueTaskCount);
+      statMostRepeated.textContent = data.mostRepeated ? `${data.mostRepeated.name} (${data.mostRepeated.count})` : "-";
+      statLeastRepeated.textContent = data.leastRepeated ? `${data.leastRepeated.name} (${data.leastRepeated.count})` : "-";
+
+      rankingList.innerHTML = "";
+      shareList.innerHTML = "";
+
+      if (!data.ranking.length) {
+        rankingList.innerHTML = "<li>لا توجد بيانات كافية بعد.</li>";
+        shareList.innerHTML = "<li>لا توجد بيانات كافية بعد.</li>";
+      } else {
+        data.ranking.forEach((item, index) => {
+          const li = document.createElement("li");
+          li.innerHTML = `<span>${index + 1}) ${escapeHtml(item.name)}</span><span>${item.count}</span>`;
+          rankingList.appendChild(li);
+        });
+
+        data.shares.forEach((item) => {
+          const li = document.createElement("li");
+          li.innerHTML = `<span>${escapeHtml(item.name)}</span><span>${item.share.toFixed(1)}%</span>`;
+          shareList.appendChild(li);
+        });
+      }
+
+      if (!data.hasCompletionData || !data.completionRows.length) {
+        completionSummary.textContent = "لا توجد سجلات إنجاز بعد. قم بتعليم المهام اليومية كمنجزة من صفحة المعاينة.";
+      } else {
+        completionSummary.textContent =
+          `الأعلى إنجازًا: ${data.topCompletion.name} (${data.topCompletion.rate.toFixed(1)}%) | ` +
+          `الأقل إنجازًا: ${data.lowCompletion.name} (${data.lowCompletion.rate.toFixed(1)}%)`;
+      }
+    }
+
+    function destroyChart(instance) {
+      if (instance && typeof instance.destroy === "function") {
+        instance.destroy();
+      }
+    }
+
+    function renderCharts(data) {
+      const hasChartLib = typeof Chart !== "undefined";
+      if (!hasChartLib) return;
+
+      destroyChart(frequencyChartInstance);
+      destroyChart(shareChartInstance);
+      destroyChart(completionChartInstance);
+
+      const frequencyCtx = document.getElementById("frequencyChart");
+      const shareCtx = document.getElementById("shareChart");
+      const completionCtx = document.getElementById("completionChart");
+
+      frequencyChartInstance = new Chart(frequencyCtx, {
+        type: "bar",
+        data: {
+          labels: data.ranking.map((item) => item.name),
+          datasets: [{
+            label: "تكرار المهمة",
+            data: data.ranking.map((item) => item.count),
+            backgroundColor: "#3b82f6"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0 } }
+          }
+        }
+      });
+
+      shareChartInstance = new Chart(shareCtx, {
+        type: "doughnut",
+        data: {
+          labels: data.shares.map((item) => item.name),
+          datasets: [{
+            label: "نسبة المهمة",
+            data: data.shares.map((item) => Number(item.share.toFixed(2))),
+            backgroundColor: ["#60a5fa", "#34d399", "#fbbf24", "#f87171", "#a78bfa", "#22d3ee", "#f472b6"]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false
+        }
+      });
+
+      const hasCompletion = data.completionRows.length > 0;
+      completionSection.classList.toggle("hidden", false);
+      completionChartInstance = new Chart(completionCtx, {
+        type: "bar",
+        data: {
+          labels: hasCompletion ? data.completionRows.map((row) => row.name) : ["لا بيانات"],
+          datasets: [{
+            label: "نسبة الإنجاز %",
+            data: hasCompletion ? data.completionRows.map((row) => Number(row.rate.toFixed(2))) : [0],
+            backgroundColor: "#10b981"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          scales: {
+            y: { beginAtZero: true, max: 100 }
+          }
+        }
+      });
+    }
+
+    function renderAnalytics() {
+      const data = buildAnalyticsData();
+      renderAnalyticsLists(data);
+      renderCharts(data);
+    }
+
+    function wait(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    function raf() {
+      return new Promise((resolve) => requestAnimationFrame(resolve));
+    }
+
+    async function prepareAnalyticsCapture() {
+      showView("analytics");
+      renderAnalytics();
+
+      // Wait for layout + canvas paint cycles.
+      await raf();
+      await raf();
+
+      const charts = [frequencyChartInstance, shareChartInstance, completionChartInstance];
+      charts.forEach((chart) => {
+        if (chart && typeof chart.update === "function") {
+          chart.update("none");
+        }
+      });
+
+      await wait(120);
     }
 
     function printPreviewList() {
@@ -925,6 +1537,127 @@
       printWindow.document.close();
     }
 
+    async function printAnalytics() {
+      await prepareAnalyticsCapture();
+      document.body.classList.add("print-analytics");
+      window.print();
+      setTimeout(() => {
+        document.body.classList.remove("print-analytics");
+      }, 300);
+    }
+
+    async function exportAnalyticsPdf() {
+      if (typeof html2canvas === "undefined" || !window.jspdf || !window.jspdf.jsPDF) {
+        alert("تعذر تحميل مكتبة PDF، تحقق من الاتصال بالإنترنت ثم أعد المحاولة.");
+        return;
+      }
+
+      await prepareAnalyticsCapture();
+      const canvas = await html2canvas(analyticsContent, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+        useCORS: true
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pdfWidth - 20;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 10;
+      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+      heightLeft -= (pdfHeight - 20);
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight + 10;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+        heightLeft -= (pdfHeight - 20);
+      }
+
+      pdf.save("family-task-analytics.pdf");
+    }
+
+    function exportDataAsJson() {
+      const backup = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        tasks,
+        savedTaskNames,
+        colors,
+        completions
+      };
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `family-task-backup-${Date.now()}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function normalizeImportedCompletions(input) {
+      if (typeof input !== "object" || input === null || Array.isArray(input)) return {};
+      const result = {};
+      Object.keys(input).forEach((key) => {
+        const value = input[key];
+        if (!value || typeof value !== "object") return;
+        if (!value.taskId || !value.taskName || !value.date) return;
+        result[key] = {
+          taskId: String(value.taskId),
+          taskName: String(value.taskName),
+          date: String(value.date),
+          completed: Boolean(value.completed)
+        };
+      });
+      return result;
+    }
+
+    function importDataFromJsonFile(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          if (Array.isArray(parsed.tasks)) {
+            tasks = parsed.tasks.map((task, index) => normalizeTask(task, index)).filter((task) => task.name);
+            saveTasks();
+          }
+          if (Array.isArray(parsed.savedTaskNames)) {
+            savedTaskNames = [...new Set(parsed.savedTaskNames.map((name) => String(name).trim()).filter(Boolean))];
+            saveSavedTaskNames();
+          } else {
+            savedTaskNames = [...new Set(tasks.map((task) => task.name).filter(Boolean))];
+            saveSavedTaskNames();
+          }
+          if (parsed.colors && typeof parsed.colors === "object") {
+            colors = { ...loadColors(), ...parsed.colors };
+            saveColors();
+          }
+          if (parsed.completions && typeof parsed.completions === "object") {
+            completions = normalizeImportedCompletions(parsed.completions);
+            saveCompletions();
+          }
+
+          applyColors();
+          renderSavedTaskNames();
+          renderAllTasks();
+          renderPreviewTasks();
+          renderAnalytics();
+          resetFormToAdd();
+          alert("تم استيراد البيانات بنجاح.");
+        } catch (error) {
+          alert("ملف JSON غير صالح.");
+        }
+      };
+      reader.readAsText(file, "utf-8");
+    }
+
     function escapeHtml(value) {
       return String(value)
         .replace(/&/g, "&amp;")
@@ -948,14 +1681,31 @@
       showView("manage");
     });
     goPreviewBtn.addEventListener("click", () => showView("preview"));
+    goAnalyticsBtn.addEventListener("click", () => showView("analytics"));
     backFromManageBtn.addEventListener("click", () => showView("home"));
     backFromPreviewBtn.addEventListener("click", () => showView("home"));
+    backFromAnalyticsBtn.addEventListener("click", () => showView("home"));
     taskForm.addEventListener("submit", handleSaveTask);
     cancelEditBtn.addEventListener("click", resetFormToAdd);
     allTasksList.addEventListener("click", handleTaskActions);
+    previewTasksList.addEventListener("change", handlePreviewCompletionChange);
     printBtn.addEventListener("click", printPreviewList);
+    printAnalyticsBtn.addEventListener("click", printAnalytics);
+    exportPdfBtn.addEventListener("click", exportAnalyticsPdf);
+    exportJsonBtn.addEventListener("click", exportDataAsJson);
+    importJsonBtn.addEventListener("click", () => jsonFileInput.click());
+    jsonFileInput.addEventListener("change", (event) => {
+      importDataFromJsonFile(event.target.files?.[0] || null);
+      jsonFileInput.value = "";
+    });
     document.querySelectorAll('input[name="taskType"]').forEach((radio) => {
       radio.addEventListener("change", toggleTypeBoxes);
+    });
+    savedTaskNameSelect.addEventListener("change", () => {
+      if (savedTaskNameSelect.value) {
+        taskNameInput.value = savedTaskNameSelect.value;
+        taskNameInput.focus();
+      }
     });
 
     titleColorInput.addEventListener("input", () => {
@@ -977,14 +1727,19 @@
       colors.boxColor = boxColorInput.value;
       applyColors();
       saveColors();
+      renderPreviewTasks();
+      renderAnalytics();
     });
 
+    tasks.forEach((task) => ensureTaskNameSaved(task.name));
     applyColors();
+    renderSavedTaskNames();
     updateTopDate();
     toggleTypeBoxes();
     resetFormToAdd();
     renderAllTasks();
     renderPreviewTasks();
+    renderAnalytics();
   </script>
 </body>
 </html>
