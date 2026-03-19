@@ -18,6 +18,7 @@
       --date-color: #0f766e;
       --task-color: #111827;
       --box-color: #2563eb;
+      --check-color: #16a34a;
       --radius: 14px;
       --shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
     }
@@ -274,6 +275,7 @@
 
     input[type="text"],
     input[type="number"],
+    input[type="date"],
     select {
       border: 1px solid var(--border);
       border-radius: 10px;
@@ -392,16 +394,37 @@
     .check-box {
       width: 32px;
       height: 32px;
+      padding: 0;
       border: 3px solid var(--box-color);
       border-radius: 6px;
-      display: inline-block;
+      display: inline-flex;
       flex: 0 0 32px;
+      background: #fff;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      user-select: none;
+      box-shadow: none;
+    }
+
+    .check-box.is-checked::after {
+      content: "✓";
+      color: var(--check-color);
+      font-size: 24px;
+      font-weight: 800;
+      transform: translateY(-1px);
     }
 
     .preview-task-text {
       color: var(--task-color);
       font-weight: 700;
       font-size: 1.02rem;
+    }
+
+    .preview-item.completed .preview-task-text {
+      text-decoration: line-through;
+      opacity: 0.7;
     }
 
     .task-done {
@@ -517,10 +540,45 @@
       height: 280px !important;
     }
 
+    .analytics-page-break {
+      margin-top: 14px;
+    }
+
     .analytics-note {
       margin-top: 8px;
       color: var(--muted);
       font-size: 0.88rem;
+    }
+
+    .dates-checklist {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      background: #fff;
+      display: grid;
+      gap: 8px;
+      max-height: 180px;
+      overflow: auto;
+      margin-top: 10px;
+    }
+
+    .date-check-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border: 1px solid #eef2f7;
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #fcfdff;
+      font-size: 0.92rem;
+    }
+
+    .date-check-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
     }
 
     .hidden {
@@ -618,6 +676,24 @@
         border: none;
         padding: 0;
       }
+
+      body.print-analytics #analyticsInfoPage {
+        page-break-after: always;
+        break-after: page;
+      }
+
+      body.print-analytics #analyticsChartsPage {
+        page-break-before: avoid;
+        break-before: avoid;
+      }
+
+      body.print-analytics #analyticsChartsPage .canvas-wrap canvas {
+        height: 150px !important;
+      }
+
+      body.print-analytics #analyticsChartsPage .analytics-box {
+        padding: 8px;
+      }
     }
 
     @media (max-width: 768px) {
@@ -662,6 +738,7 @@
         <button id="goDeleteBtn" class="btn-main">حذف قائمة</button>
         <button id="goPreviewBtn" class="btn-main">معاينة القائمة</button>
         <button id="goAnalyticsBtn" class="btn-main">التحليلات والإحصائيات</button>
+        <button id="goListsPageBtn" class="btn-main">صفحة القوائم</button>
       </div>
     </section>
 
@@ -740,8 +817,10 @@
       <div class="btn-row">
         <button id="exportJsonBtn" class="btn-export">تصدير البيانات JSON</button>
         <button id="importJsonBtn" class="btn-import">استيراد البيانات JSON</button>
+        <button id="restoreAutoBackupBtn" class="btn-back">استعادة آخر نسخة تلقائية</button>
         <input id="jsonFileInput" type="file" accept="application/json" class="hidden">
       </div>
+      <p id="autoBackupStatus" class="muted">آخر نسخة احتياطية تلقائية: لم يتم بعد</p>
 
       <h2 style="margin-top:16px;">تخصيص الألوان</h2>
       <div class="color-grid">
@@ -761,10 +840,16 @@
           <label for="boxColorInput">لون المربعات</label>
           <input id="boxColorInput" type="color">
         </div>
+        <div class="color-field">
+          <label for="checkColorInput">لون علامة الصح</label>
+          <input id="checkColorInput" type="color">
+        </div>
       </div>
 
-      <h2 style="margin-top:16px;">كل المهام</h2>
-      <div id="allTasksList" class="list"></div>
+      <section id="manageTasksSection">
+        <h2 style="margin-top:16px;">كل المهام</h2>
+        <div id="allTasksList" class="list"></div>
+      </section>
     </section>
 
     <section id="previewView" class="card view">
@@ -785,60 +870,103 @@
       </div>
 
       <div id="analyticsContent">
-        <h2>لوحة التحليلات</h2>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <strong id="statTotalTasks">0</strong>
-            <span>إجمالي المهام</span>
-          </div>
-          <div class="stat-card">
-            <strong id="statUniqueTasks">0</strong>
-            <span>عدد الأسماء الفريدة</span>
-          </div>
-          <div class="stat-card">
-            <strong id="statMostRepeated">-</strong>
-            <span>الأكثر تكرارًا</span>
-          </div>
-          <div class="stat-card">
-            <strong id="statLeastRepeated">-</strong>
-            <span>الأقل تكرارًا</span>
-          </div>
-        </div>
-
-        <div class="analytics-layout">
-          <div class="analytics-box">
-            <h3>ترتيب التكرار (من الأعلى للأقل)</h3>
-            <ul id="rankingList" class="ranking-list"></ul>
-          </div>
-          <div class="analytics-box">
-            <h3>توزيع النسبة المئوية للمهام</h3>
-            <ul id="shareList" class="ranking-list"></ul>
-          </div>
-        </div>
-
-        <div class="analytics-layout" style="margin-top: 14px;">
-          <div class="analytics-box">
-            <h3>رسم بياني: تكرار المهام</h3>
-            <div class="canvas-wrap">
-              <canvas id="frequencyChart"></canvas>
+        <div id="analyticsInfoPage">
+          <h2>لوحة التحليلات</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <strong id="statTotalTasks">0</strong>
+              <span>إجمالي المهام</span>
+            </div>
+            <div class="stat-card">
+              <strong id="statUniqueTasks">0</strong>
+              <span>عدد الأسماء الفريدة</span>
+            </div>
+            <div class="stat-card">
+              <strong id="statMostRepeated">-</strong>
+              <span>الأكثر تكرارًا</span>
+            </div>
+            <div class="stat-card">
+              <strong id="statLeastRepeated">-</strong>
+              <span>الأقل تكرارًا</span>
             </div>
           </div>
-          <div class="analytics-box">
-            <h3>رسم بياني: النسبة المئوية</h3>
-            <div class="canvas-wrap">
-              <canvas id="shareChart"></canvas>
+
+          <div class="analytics-layout">
+            <div class="analytics-box">
+              <h3>ترتيب التكرار (من الأعلى للأقل)</h3>
+              <ul id="rankingList" class="ranking-list"></ul>
+            </div>
+            <div class="analytics-box">
+              <h3>توزيع النسبة المئوية للمهام</h3>
+              <ul id="shareList" class="ranking-list"></ul>
             </div>
           </div>
         </div>
 
-        <div id="completionSection" class="analytics-box" style="margin-top:14px;">
-          <h3>تحليل الإنجاز (يعتمد على علامات الإنجاز اليومية)</h3>
-          <p id="completionSummary" class="muted"></p>
-          <div class="canvas-wrap">
-            <canvas id="completionChart"></canvas>
+        <div id="analyticsChartsPage" class="analytics-page-break">
+          <div class="analytics-layout" style="margin-top: 14px;">
+            <div class="analytics-box">
+              <h3>رسم بياني: تكرار المهام</h3>
+              <div class="canvas-wrap">
+                <canvas id="frequencyChart"></canvas>
+              </div>
+            </div>
+            <div class="analytics-box">
+              <h3>رسم بياني: النسبة المئوية</h3>
+              <div class="canvas-wrap">
+                <canvas id="shareChart"></canvas>
+              </div>
+            </div>
           </div>
-          <p class="analytics-note">إذا لم يتم تعليم المهام كمنجزة بعد، سيظهر هذا القسم بدون بيانات تفصيلية.</p>
+
+          <div id="completionSection" class="analytics-box" style="margin-top:14px;">
+            <h3>تحليل الإنجاز (يعتمد على علامات الإنجاز اليومية)</h3>
+            <p id="completionSummary" class="muted"></p>
+            <div class="canvas-wrap">
+              <canvas id="completionChart"></canvas>
+            </div>
+            <p class="analytics-note">إذا لم يتم تعليم المهام كمنجزة بعد، سيظهر هذا القسم بدون بيانات تفصيلية.</p>
+          </div>
         </div>
+      </div>
+    </section>
+
+    <section id="listsView" class="card view">
+      <div class="btn-row">
+        <button id="backFromListsBtn" class="btn-back">الرجوع للرئيسية</button>
+      </div>
+      <h2>صفحة القوائم</h2>
+      <p class="muted">اختر تاريخًا لعرض قائمة ذلك اليوم، ثم اطبعها أو صدّرها PDF.</p>
+
+      <div class="grid" style="margin-top:12px;">
+        <div class="field">
+          <label for="listsDateInput">اختيار التاريخ (تقويم/كتابة)</label>
+          <input id="listsDateInput" type="date">
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top:10px;">
+        <button id="searchListByDateBtn" class="btn-main">ابحث</button>
+        <button id="showLast30ListsBtn" class="btn-back">عرض جميع القوائم لآخر 30 يوم</button>
+      </div>
+
+      <h3 style="margin-top:12px;">تحديد قوائم للحذف</h3>
+      <div class="btn-row" style="margin-bottom:6px;">
+        <button id="selectAllListsDatesBtn" class="btn-back">تحديد الكل</button>
+        <button id="clearAllListsDatesBtn" class="btn-back">إلغاء التحديد</button>
+      </div>
+      <div id="listsDatesChecklist" class="dates-checklist">
+        <p class="muted">لا توجد تواريخ محفوظة بعد.</p>
+      </div>
+
+      <div id="listsViewInfo" class="muted" style="margin-top:10px;"></div>
+      <div id="listsViewTasks" class="list"></div>
+
+      <div class="btn-row" style="margin-top:12px;">
+        <button id="printSelectedListBtn" class="btn-main">طباعة القائمة المختارة</button>
+        <button id="exportSelectedListPdfBtn" class="btn-pdf">تصدير القائمة المختارة PDF</button>
+        <button id="deleteSelectedListsBtn" class="btn-delete">حذف القائمة/القوائم المحددة</button>
+        <button id="deleteAllListsBtn" class="btn-delete">حذف جميع القوائم من الهيستوري</button>
       </div>
     </section>
   </div>
@@ -873,6 +1001,10 @@
     const SAVED_NAME_META_KEY = "familyTaskNameMeta_v1";
     const COMPLETIONS_KEY = "familyTaskCompletions_v1";
     const ACK_VERSION_KEY = "familyTaskAckVersion_v1";
+    const AUTO_BACKUP_KEY = "familyTaskAutoBackup_v1";
+    const AUTO_BACKUP_TS_KEY = "familyTaskAutoBackupTimestamp_v1";
+    const AUTO_BACKUP_BEFORE_RESTORE_KEY = "familyTaskAutoBackupBeforeRestore_v1";
+    const DAILY_LISTS_KEY = "familyDailyLists_v1";
     const DEFAULT_EMOJI = "📝";
 
     const arabicDays = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
@@ -888,15 +1020,19 @@
     const manageView = document.getElementById("manageView");
     const previewView = document.getElementById("previewView");
     const analyticsView = document.getElementById("analyticsView");
+    const listsView = document.getElementById("listsView");
     const goAddBtn = document.getElementById("goAddBtn");
     const goEditBtn = document.getElementById("goEditBtn");
     const goDeleteBtn = document.getElementById("goDeleteBtn");
     const goPreviewBtn = document.getElementById("goPreviewBtn");
     const goAnalyticsBtn = document.getElementById("goAnalyticsBtn");
+    const goListsPageBtn = document.getElementById("goListsPageBtn");
     const backFromManageBtn = document.getElementById("backFromManageBtn");
     const backFromPreviewBtn = document.getElementById("backFromPreviewBtn");
     const backFromAnalyticsBtn = document.getElementById("backFromAnalyticsBtn");
+    const backFromListsBtn = document.getElementById("backFromListsBtn");
     const manageHint = document.getElementById("manageHint");
+    const manageTasksSection = document.getElementById("manageTasksSection");
     const animatedBg = document.getElementById("animatedBg");
 
     const taskForm = document.getElementById("taskForm");
@@ -917,12 +1053,27 @@
     const printBtn = document.getElementById("printBtn");
     const exportJsonBtn = document.getElementById("exportJsonBtn");
     const importJsonBtn = document.getElementById("importJsonBtn");
+    const restoreAutoBackupBtn = document.getElementById("restoreAutoBackupBtn");
     const jsonFileInput = document.getElementById("jsonFileInput");
+    const autoBackupStatus = document.getElementById("autoBackupStatus");
+    const listsDateInput = document.getElementById("listsDateInput");
+    const searchListByDateBtn = document.getElementById("searchListByDateBtn");
+    const showLast30ListsBtn = document.getElementById("showLast30ListsBtn");
+    const listsDatesChecklist = document.getElementById("listsDatesChecklist");
+    const selectAllListsDatesBtn = document.getElementById("selectAllListsDatesBtn");
+    const clearAllListsDatesBtn = document.getElementById("clearAllListsDatesBtn");
+    const listsViewInfo = document.getElementById("listsViewInfo");
+    const listsViewTasks = document.getElementById("listsViewTasks");
+    const printSelectedListBtn = document.getElementById("printSelectedListBtn");
+    const exportSelectedListPdfBtn = document.getElementById("exportSelectedListPdfBtn");
+    const deleteSelectedListsBtn = document.getElementById("deleteSelectedListsBtn");
+    const deleteAllListsBtn = document.getElementById("deleteAllListsBtn");
 
     const titleColorInput = document.getElementById("titleColorInput");
     const dateColorInput = document.getElementById("dateColorInput");
     const taskColorInput = document.getElementById("taskColorInput");
     const boxColorInput = document.getElementById("boxColorInput");
+    const checkColorInput = document.getElementById("checkColorInput");
 
     const statTotalTasks = document.getElementById("statTotalTasks");
     const statUniqueTasks = document.getElementById("statUniqueTasks");
@@ -935,6 +1086,8 @@
     const printAnalyticsBtn = document.getElementById("printAnalyticsBtn");
     const exportPdfBtn = document.getElementById("exportPdfBtn");
     const analyticsContent = document.getElementById("analyticsContent");
+    const analyticsInfoPage = document.getElementById("analyticsInfoPage");
+    const analyticsChartsPage = document.getElementById("analyticsChartsPage");
     const updatesModalOverlay = document.getElementById("updatesModalOverlay");
     const dismissUpdatesBtn = document.getElementById("dismissUpdatesBtn");
     const updatesVersionText = document.getElementById("updatesVersionText");
@@ -944,6 +1097,10 @@
     let savedTaskNames = loadSavedTaskNames();
     let taskNameMeta = loadTaskNameMeta();
     let completions = loadCompletions();
+    let dailyLists = loadDailyLists();
+    let manageMode = "add";
+    let listsViewMode = "single";
+    let listsSearchDateKey = "";
     let frequencyChartInstance = null;
     let shareChartInstance = null;
     let completionChartInstance = null;
@@ -996,6 +1153,108 @@
 
     function saveTasks() {
       localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+      createAutomaticBackup();
+      renderAutoBackupStatus();
+    }
+
+    function loadDailyLists() {
+      const raw = localStorage.getItem(DAILY_LISTS_KEY);
+      if (!raw) return {};
+      try {
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+        return parsed;
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function saveDailyLists() {
+      localStorage.setItem(DAILY_LISTS_KEY, JSON.stringify(dailyLists));
+    }
+
+    function formatBackupTimestampArabic(timestampValue) {
+      const dateObj = new Date(timestampValue);
+      if (Number.isNaN(dateObj.getTime())) return null;
+
+      const day = String(dateObj.getDate()).padStart(2, "0");
+      const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+      const year = String(dateObj.getFullYear());
+
+      let hours = dateObj.getHours();
+      const minutes = String(dateObj.getMinutes()).padStart(2, "0");
+      const period = hours >= 12 ? "م" : "ص";
+      hours = hours % 12;
+      if (hours === 0) hours = 12;
+      const hoursText = String(hours).padStart(2, "0");
+
+      return `${day}/${month}/${year} - ${hoursText}:${minutes} ${period}`;
+    }
+
+    function createAutomaticBackup() {
+      const nowIso = new Date().toISOString();
+      const payload = {
+        backedUpAt: nowIso,
+        tasks
+      };
+      localStorage.setItem(AUTO_BACKUP_KEY, JSON.stringify(payload));
+      localStorage.setItem(AUTO_BACKUP_TS_KEY, nowIso);
+    }
+
+    function renderAutoBackupStatus() {
+      if (!autoBackupStatus) return;
+      const timestamp = localStorage.getItem(AUTO_BACKUP_TS_KEY);
+      if (!timestamp) {
+        autoBackupStatus.textContent = "آخر نسخة احتياطية تلقائية: لم يتم بعد";
+        return;
+      }
+      const formatted = formatBackupTimestampArabic(timestamp);
+      autoBackupStatus.textContent = formatted
+        ? `آخر نسخة احتياطية تلقائية: ${formatted}`
+        : "آخر نسخة احتياطية تلقائية: لم يتم بعد";
+    }
+
+    function restoreLastAutomaticBackup() {
+      const raw = localStorage.getItem(AUTO_BACKUP_KEY);
+      if (!raw) {
+        alert("لا توجد نسخة احتياطية تلقائية للاستعادة.");
+        return;
+      }
+
+      let parsed;
+      try {
+        parsed = JSON.parse(raw);
+      } catch (error) {
+        alert("تعذر قراءة النسخة الاحتياطية التلقائية.");
+        return;
+      }
+
+      if (!parsed || !Array.isArray(parsed.tasks)) {
+        alert("صيغة النسخة الاحتياطية التلقائية غير صالحة.");
+        return;
+      }
+
+      const confirmed = window.confirm("سيتم استبدال المهام الحالية بآخر نسخة تلقائية. هل تريد المتابعة؟");
+      if (!confirmed) return;
+
+      // Safety snapshot before restore so current state is still recoverable.
+      localStorage.setItem(AUTO_BACKUP_BEFORE_RESTORE_KEY, JSON.stringify({
+        savedAt: new Date().toISOString(),
+        tasks
+      }));
+
+      const restoredTasks = parsed.tasks
+        .map((task, index) => normalizeTask(task, index))
+        .filter((task) => task.name);
+
+      tasks = restoredTasks;
+      tasks.forEach((task) => ensureTaskNameSaved(task.name, task.emoji || DEFAULT_EMOJI));
+      saveTasks();
+      renderAllTasks();
+      renderPreviewTasks();
+      renderAnalytics();
+      resetFormToAdd();
+      alert("تمت استعادة آخر نسخة احتياطية تلقائية بنجاح.");
     }
 
     function loadTaskNameMeta() {
@@ -1102,7 +1361,8 @@
         titleColor: "#1e3a8a",
         dateColor: "#0f766e",
         taskColor: "#111827",
-        boxColor: "#2563eb"
+        boxColor: "#2563eb",
+        checkColor: "#16a34a"
       };
       const raw = localStorage.getItem(COLORS_KEY);
       if (!raw) return defaults;
@@ -1122,20 +1382,24 @@
       document.documentElement.style.setProperty("--date-color", colors.dateColor);
       document.documentElement.style.setProperty("--task-color", colors.taskColor);
       document.documentElement.style.setProperty("--box-color", colors.boxColor);
+      document.documentElement.style.setProperty("--check-color", colors.checkColor);
       titleColorInput.value = colors.titleColor;
       dateColorInput.value = colors.dateColor;
       taskColorInput.value = colors.taskColor;
       boxColorInput.value = colors.boxColor;
+      checkColorInput.value = colors.checkColor;
     }
 
     function showView(viewName) {
-      [homeView, manageView, previewView, analyticsView].forEach((view) => view.classList.remove("active"));
+      [homeView, manageView, previewView, analyticsView, listsView].forEach((view) => view.classList.remove("active"));
       if (viewName === "home") homeView.classList.add("active");
       if (viewName === "manage") manageView.classList.add("active");
       if (viewName === "preview") previewView.classList.add("active");
       if (viewName === "analytics") analyticsView.classList.add("active");
+      if (viewName === "lists") listsView.classList.add("active");
       if (viewName === "preview") renderPreviewTasks();
       if (viewName === "analytics") renderAnalytics();
+      if (viewName === "lists") renderListsView();
     }
 
     function formatDate(dateObj) {
@@ -1149,6 +1413,66 @@
       const dayName = arabicDays[dateObj.getDay()];
       const dateText = formatDate(dateObj);
       return `${dayName} | ${dateText}`;
+    }
+
+    function parseDateKeyToDateObj(dateKey) {
+      const value = String(dateKey || "").trim();
+      let day;
+      let month;
+      let year;
+
+      const ddmmyyyy = value.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+      const yyyymmdd = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+      if (ddmmyyyy) {
+        day = Number(ddmmyyyy[1]);
+        month = Number(ddmmyyyy[2]);
+        year = Number(ddmmyyyy[3]);
+      } else if (yyyymmdd) {
+        year = Number(yyyymmdd[1]);
+        month = Number(yyyymmdd[2]);
+        day = Number(yyyymmdd[3]);
+      } else {
+        return null;
+      }
+
+      const dateObj = new Date(year, month - 1, day);
+      if (Number.isNaN(dateObj.getTime())) return null;
+      return dateObj;
+    }
+
+    function normalizeDateKeyFromInput(inputValue) {
+      const match = String(inputValue || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!match) return "";
+      return `${match[3]}-${match[2]}-${match[1]}`;
+    }
+
+    function dateKeyToInputValue(dateKey) {
+      const dateObj = parseDateKeyToDateObj(dateKey);
+      if (!dateObj) return "";
+      const year = dateObj.getFullYear();
+      const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+      const day = String(dateObj.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function toLegacyDateKeyFromDateObj(dateObj) {
+      const year = dateObj.getFullYear();
+      const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+      const day = String(dateObj.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function resolveDailyListDateKey(dateKey) {
+      if (!dateKey) return "";
+      if (dailyLists[dateKey]) return dateKey;
+      const dateObj = parseDateKeyToDateObj(dateKey);
+      if (!dateObj) return dateKey;
+      const canonical = formatDate(dateObj);
+      const legacy = toLegacyDateKeyFromDateObj(dateObj);
+      if (dailyLists[canonical]) return canonical;
+      if (dailyLists[legacy]) return legacy;
+      return canonical;
     }
 
     function updateTopDate() {
@@ -1238,6 +1562,55 @@
       return tasks.filter((task) => isTaskForToday(task, today));
     }
 
+    function updateManageTasksSectionVisibility() {
+      if (!manageTasksSection) return;
+      manageTasksSection.style.display = manageMode === "add" ? "none" : "block";
+    }
+
+    function getTasksForDate(dateKey) {
+      const dateObj = parseDateKeyToDateObj(dateKey);
+      if (!dateObj) return [];
+      return tasks.filter((task) => isTaskForToday(task, dateObj));
+    }
+
+    function ensureDailyListSnapshot(dateKey, tasksForDate) {
+      if (!dateKey) return;
+      const normalizedItems = (tasksForDate || []).map((task) => {
+        const completion = completions[getCompletionKey(dateKey, task.id)]?.completed;
+        return {
+          id: task.id,
+          name: task.name,
+          emoji: task.emoji || DEFAULT_EMOJI,
+          category: task.category,
+          completed: typeof completion === "boolean" ? completion : Boolean(task.completed)
+        };
+      });
+
+      const previous = dailyLists[dateKey];
+      const mergedItems = normalizedItems.map((item) => {
+        const old = previous?.items?.find((oldItem) => oldItem.id === item.id);
+        if (!old) return item;
+        return { ...old, ...item };
+      });
+
+      dailyLists[dateKey] = {
+        ...(previous && typeof previous === "object" ? previous : {}),
+        date: dateKey,
+        updatedAt: new Date().toISOString(),
+        items: mergedItems
+      };
+      saveDailyLists();
+    }
+
+    function getDailyListByDate(dateKey) {
+      if (!dateKey) return [];
+      const snapshot = dailyLists[dateKey];
+      if (snapshot && Array.isArray(snapshot.items)) {
+        return snapshot.items.map((item) => ({ ...item }));
+      }
+      return [];
+    }
+
     function getCompletionKey(dateText, taskId) {
       return `${dateText}__${taskId}`;
     }
@@ -1305,6 +1678,8 @@
       const todayDate = formatDate(today);
 
       const todayTasks = getTodayTasks();
+      ensureDailyListSnapshot(todayDate, todayTasks);
+      renderSavedDatesOptions();
       const grouped = groupTasksByCategory(todayTasks);
       previewTasksList.innerHTML = "";
 
@@ -1319,14 +1694,17 @@
         block.className = "task-item";
         const tasksHtml = grouped[category].map((task) => `
           <div class="preview-item ${task.completed ? "completed" : ""}">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <span class="check-box"></span>
-              <span class="preview-task-text">${escapeHtml(task.emoji || DEFAULT_EMOJI)} ${escapeHtml(task.name)}</span>
-            </div>
-            <label class="task-done">
-              <input type="checkbox" class="done-checkbox" data-task-id="${task.id}" data-task-name="${escapeHtml(task.name)}" data-date="${todayDate}" ${getCompletionForToday(task) ? "checked" : ""}>
-              تم الإنجاز
-            </label>
+            <button
+              type="button"
+              class="check-box ${getCompletionForToday(task) ? "is-checked" : ""}"
+              data-action="toggle-preview-completed"
+              data-task-id="${task.id}"
+              data-task-name="${escapeHtml(task.name)}"
+              data-date="${todayDate}"
+              aria-label="تغيير حالة الإنجاز"
+              title="تغيير حالة الإنجاز"
+            ></button>
+            <span class="preview-task-text">${escapeHtml(task.emoji || DEFAULT_EMOJI)} ${escapeHtml(task.name)}</span>
           </div>
         `).join("");
         block.innerHTML = `
@@ -1335,6 +1713,396 @@
         `;
         previewTasksList.appendChild(block);
       });
+    }
+
+    function sortDateKeysDescending(dateKeys) {
+      return [...dateKeys].sort((a, b) => {
+        const dateA = parseDateKeyToDateObj(a)?.getTime() || 0;
+        const dateB = parseDateKeyToDateObj(b)?.getTime() || 0;
+        return dateB - dateA;
+      });
+    }
+
+    function renderSavedDatesOptions() {
+      const keys = Object.keys(dailyLists);
+      const sorted = sortDateKeysDescending(keys);
+      if (!listsDatesChecklist) return;
+      if (sorted.length === 0) {
+        listsDatesChecklist.innerHTML = '<p class="muted">لا توجد تواريخ محفوظة بعد.</p>';
+        return;
+      }
+
+      listsDatesChecklist.innerHTML = "";
+      sorted.forEach((dateKey) => {
+        const row = document.createElement("label");
+        row.className = "date-check-item";
+        row.innerHTML = `
+          <span>${dateKey}</span>
+          <input type="checkbox" class="list-date-checkbox" value="${dateKey}">
+        `;
+        listsDatesChecklist.appendChild(row);
+      });
+    }
+
+    function getCheckedListDates() {
+      if (!listsDatesChecklist) return [];
+      return Array.from(listsDatesChecklist.querySelectorAll(".list-date-checkbox:checked"))
+        .map((checkbox) => checkbox.value)
+        .filter(Boolean);
+    }
+
+    function setAllListDatesSelection(checkedValue) {
+      if (!listsDatesChecklist) return;
+      const checkboxes = listsDatesChecklist.querySelectorAll(".list-date-checkbox");
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = checkedValue;
+      });
+    }
+
+    function getSelectedListsDateKey() {
+      return resolveDailyListDateKey(listsSearchDateKey);
+    }
+
+    function getLast30DaysKeys() {
+      const keys = [];
+      const today = new Date();
+      for (let i = 0; i < 30; i += 1) {
+        const dateObj = new Date(today);
+        dateObj.setDate(today.getDate() - i);
+        keys.push(formatDate(dateObj));
+      }
+      return keys;
+    }
+
+    function getExistingListKeyForDateKey(dateKey) {
+      const resolved = resolveDailyListDateKey(dateKey);
+      if (dailyLists[resolved]) return resolved;
+      const dateObj = parseDateKeyToDateObj(dateKey);
+      if (!dateObj) return "";
+      const legacy = toLegacyDateKeyFromDateObj(dateObj);
+      if (dailyLists[legacy]) return legacy;
+      return "";
+    }
+
+    function renderSingleDateList(dateKey) {
+      if (!dateKey) {
+        listsViewInfo.textContent = "اختر التاريخ ثم اضغط زر (ابحث).";
+        listsViewTasks.innerHTML = '<p class="empty">لا توجد قائمة محددة حاليًا.</p>';
+        return;
+      }
+
+      const existingKey = getExistingListKeyForDateKey(dateKey);
+      if (!existingKey || !dailyLists[existingKey]) {
+        listsViewInfo.textContent = `التاريخ المختار: ${dateKey}`;
+        listsViewTasks.innerHTML = '<p class="empty">هذا التاريخ لا يملك قائمة محفوظة في الهيستوري.</p>';
+        return;
+      }
+
+      const items = getDailyListByDate(existingKey);
+      listsViewInfo.textContent = `التاريخ المختار: ${existingKey}`;
+      if (!items.length) {
+        listsViewTasks.innerHTML = '<p class="empty">هذا التاريخ لا يملك قائمة محفوظة في الهيستوري.</p>';
+        return;
+      }
+
+      const grouped = groupTasksByCategory(items);
+      listsViewTasks.innerHTML = "";
+      Object.keys(grouped).forEach((category) => {
+        const categoryItems = grouped[category];
+        if (!categoryItems.length) return;
+        const block = document.createElement("div");
+        block.className = "task-item";
+        const tasksHtml = categoryItems.map((item) => `
+          <div class="preview-item ${item.completed ? "completed" : ""}">
+            <span class="check-box ${item.completed ? "is-checked" : ""}" aria-hidden="true"></span>
+            <span class="preview-task-text">${escapeHtml(item.emoji || DEFAULT_EMOJI)} ${escapeHtml(item.name)}</span>
+          </div>
+        `).join("");
+        block.innerHTML = `
+          <div class="meta"><span class="category-tag">${category}</span></div>
+          ${tasksHtml}
+        `;
+        listsViewTasks.appendChild(block);
+      });
+    }
+
+    function renderLast30Lists() {
+      const keys = getLast30DaysKeys();
+      const existingKeys = keys
+        .map((dateKey) => getExistingListKeyForDateKey(dateKey))
+        .filter((key, idx, arr) => key && arr.indexOf(key) === idx);
+
+      if (existingKeys.length === 0) {
+        listsViewInfo.textContent = "عرض آخر 30 يوم.";
+        listsViewTasks.innerHTML = '<p class="empty">لا توجد قوائم محفوظة خلال آخر 30 يوم.</p>';
+        return;
+      }
+
+      listsViewInfo.textContent = "عرض جميع القوائم المحفوظة خلال آخر 30 يوم.";
+      listsViewTasks.innerHTML = "";
+
+      existingKeys.forEach((dateKey) => {
+        const items = getDailyListByDate(dateKey);
+        if (!items.length) return;
+        const grouped = groupTasksByCategory(items);
+        const card = document.createElement("div");
+        card.className = "task-item";
+        const sectionsHtml = Object.keys(grouped).map((category) => {
+          const categoryItems = grouped[category];
+          if (!categoryItems.length) return "";
+          const tasksHtml = categoryItems.map((item) => `
+            <div class="preview-item ${item.completed ? "completed" : ""}">
+              <span class="check-box ${item.completed ? "is-checked" : ""}" aria-hidden="true"></span>
+              <span class="preview-task-text">${escapeHtml(item.emoji || DEFAULT_EMOJI)} ${escapeHtml(item.name)}</span>
+            </div>
+          `).join("");
+          return `
+            <div style="margin-top:10px;">
+              <div class="meta"><span class="category-tag">${category}</span></div>
+              ${tasksHtml}
+            </div>
+          `;
+        }).join("");
+
+        card.innerHTML = `
+          <h3 style="margin-bottom:6px;">${dateKey}</h3>
+          ${sectionsHtml}
+        `;
+        listsViewTasks.appendChild(card);
+      });
+    }
+
+    function renderListsView() {
+      renderSavedDatesOptions();
+      if (listsViewMode === "last30") {
+        renderLast30Lists();
+      } else {
+        renderSingleDateList(getSelectedListsDateKey());
+      }
+    }
+
+    function buildPrintableListSectionsHtml(itemsByCategory) {
+      return Object.keys(itemsByCategory).map((category) => {
+        const items = itemsByCategory[category];
+        if (!items.length) return "";
+        const itemsHtml = items.map((item) => `
+          <li>
+            <div class="print-task-row">
+              <span class="check-box ${item.completed ? "is-checked" : ""}" aria-hidden="true"></span>
+              <span class="task-text">${escapeHtml(item.emoji || DEFAULT_EMOJI)} ${escapeHtml(item.name)}</span>
+            </div>
+          </li>
+        `).join("");
+        return `
+          <section>
+            <h3>${category}</h3>
+            <ul>${itemsHtml}</ul>
+          </section>
+        `;
+      }).join("");
+    }
+
+    function openPrintWindowForList(titleText, dateKey, groupedItems) {
+      const sectionsHtml = buildPrintableListSectionsHtml(groupedItems);
+      const printableContent = sectionsHtml || "<p>لا توجد مهام لهذا التاريخ.</p>";
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        alert("لم نتمكن من فتح نافذة الطباعة. تأكد من السماح بالنوافذ المنبثقة.");
+        return;
+      }
+
+      const html = `
+        <!DOCTYPE html>
+        <html lang="ar" dir="rtl">
+        <head>
+          <meta charset="UTF-8">
+          <title>${titleText}</title>
+          <style>
+            body { font-family: Tahoma, Arial, sans-serif; padding: 24px; color: #111827; line-height: 1.7; }
+            .print-header { position: relative; min-height: 62px; margin-bottom: 14px; }
+            h1 { margin: 0; text-align: center; color: ${colors.titleColor}; }
+            .meta { position: absolute; left: 0; top: 8px; text-align: left; direction: ltr; color: ${colors.dateColor}; }
+            section { margin-bottom: 16px; }
+            h3 { margin-bottom: 8px; border-bottom: 1px solid #d1d5db; padding-bottom: 4px; }
+            ul { list-style: none; margin: 0; padding: 0; }
+            li { margin-bottom: 9px; list-style: none; }
+            .print-task-row { display: flex; align-items: center; gap: 12px; color: ${colors.taskColor}; font-weight: 700; }
+            .task-text { color: ${colors.taskColor}; }
+            .check-box {
+              width: 32px; height: 32px; display: inline-block; flex: 0 0 32px;
+              border: 3px solid ${colors.boxColor}; border-radius: 6px; background: #fff;
+              box-sizing: border-box; position: relative;
+              -webkit-print-color-adjust: exact; print-color-adjust: exact;
+            }
+            .check-box.is-checked::after {
+              content: "✓"; position: absolute; left: 50%; top: 50%;
+              transform: translate(-50%, -58%); color: ${colors.checkColor || "#16a34a"};
+              font-size: 24px; font-weight: 800; line-height: 1;
+            }
+            .footer { margin-top: 30px; border-top: 1px dashed #9ca3af; padding-top: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="print-header">
+            <h1>${titleText}</h1>
+            <p class="meta">${dateKey}</p>
+          </div>
+          ${printableContent}
+          <div class="footer">تم التنفيذ بواسطة: ____________________</div>
+          <script>window.onload = function () { window.print(); };<\/script>
+        </body>
+        </html>
+      `;
+
+      printWindow.document.open();
+      printWindow.document.write(html);
+      printWindow.document.close();
+    }
+
+    function printSelectedListFromListsPage() {
+      if (listsViewMode !== "single") {
+        alert("فعّل وضع البحث بتاريخ محدد أولًا ثم اطبع.");
+        return;
+      }
+      const dateKey = getSelectedListsDateKey();
+      if (!dateKey) {
+        alert("اختر تاريخًا أولًا.");
+        return;
+      }
+      if (!dailyLists[dateKey]) {
+        alert("هذا التاريخ لا يملك قائمة محفوظة في الهيستوري.");
+        return;
+      }
+      const items = getDailyListByDate(dateKey);
+      const grouped = groupTasksByCategory(items);
+      openPrintWindowForList("قائمة المهام", dateKey, grouped);
+    }
+
+    async function exportSelectedListPdf() {
+      if (typeof html2canvas === "undefined" || !window.jspdf || !window.jspdf.jsPDF) {
+        alert("تعذر تحميل مكتبة PDF، تحقق من الاتصال بالإنترنت ثم أعد المحاولة.");
+        return;
+      }
+
+      if (listsViewMode !== "single") {
+        alert("فعّل وضع البحث بتاريخ محدد أولًا ثم صدّر PDF.");
+        return;
+      }
+
+      const dateKey = getSelectedListsDateKey();
+      if (!dateKey) {
+        alert("اختر تاريخًا أولًا.");
+        return;
+      }
+      if (!dailyLists[dateKey]) {
+        alert("هذا التاريخ لا يملك قائمة محفوظة في الهيستوري.");
+        return;
+      }
+
+      renderListsView();
+      await raf();
+      await raf();
+
+      const wrapper = document.createElement("div");
+      wrapper.style.width = "794px";
+      wrapper.style.background = "#fff";
+      wrapper.style.padding = "20px";
+      wrapper.style.direction = "rtl";
+      wrapper.style.position = "fixed";
+      wrapper.style.left = "-99999px";
+      wrapper.innerHTML = `
+        <h2 style="margin:0 0 8px;text-align:center;color:${colors.titleColor};">قائمة المهام</h2>
+        <p style="margin:0 0 12px;color:${colors.dateColor};text-align:left;direction:ltr;">${dateKey}</p>
+      `;
+      wrapper.appendChild(listsViewTasks.cloneNode(true));
+      document.body.appendChild(wrapper);
+
+      const canvas = await html2canvas(wrapper, { scale: 2, backgroundColor: "#ffffff", useCORS: true });
+      document.body.removeChild(wrapper);
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pdfWidth - 20;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 10;
+      const imgData = canvas.toDataURL("image/png");
+      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+      heightLeft -= (pdfHeight - 20);
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight + 10;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+        heightLeft -= (pdfHeight - 20);
+      }
+
+      pdf.save(`task-list-${dateKey}.pdf`);
+    }
+
+    function searchListByDate() {
+      const dateKey = normalizeDateKeyFromInput(listsDateInput?.value || "");
+      if (!dateKey) {
+        alert("اختر تاريخًا صحيحًا أولًا.");
+        return;
+      }
+      listsViewMode = "single";
+      listsSearchDateKey = dateKey;
+      renderListsView();
+    }
+
+    function showLast30Lists() {
+      listsViewMode = "last30";
+      listsSearchDateKey = "";
+      renderListsView();
+    }
+
+    function deleteSelectedListsHistory() {
+      const selectedDates = getCheckedListDates();
+      if (selectedDates.length === 0) {
+        alert("اختر قائمة واحدة على الأقل من قائمة التحديد.");
+        return;
+      }
+
+      const confirmed = window.confirm(`سيتم حذف ${selectedDates.length} قائمة من الهيستوري. هل تريد المتابعة؟`);
+      if (!confirmed) return;
+
+      selectedDates.forEach((dateKey) => {
+        delete dailyLists[dateKey];
+      });
+      saveDailyLists();
+
+      const currentKey = getSelectedListsDateKey();
+      if (currentKey && !dailyLists[currentKey]) {
+        listsDateInput.value = "";
+        listsSearchDateKey = "";
+      }
+
+      renderSavedDatesOptions();
+      renderListsView();
+      alert("تم حذف القوائم المحددة من الهيستوري.");
+    }
+
+    function deleteAllListsHistory() {
+      const hasAny = Object.keys(dailyLists).length > 0;
+      if (!hasAny) {
+        alert("لا توجد قوائم في الهيستوري للحذف.");
+        return;
+      }
+
+      const confirmed = window.confirm("سيتم حذف جميع القوائم من الهيستوري. هل أنت متأكد؟");
+      if (!confirmed) return;
+
+      dailyLists = {};
+      saveDailyLists();
+      listsDateInput.value = "";
+      listsSearchDateKey = "";
+      renderSavedDatesOptions();
+      renderListsView();
+      alert("تم حذف جميع القوائم من الهيستوري.");
     }
 
     function handleSaveTask(event) {
@@ -1409,17 +2177,19 @@
     }
 
     function handlePreviewCompletionChange(event) {
-      const checkbox = event.target.closest(".done-checkbox");
-      if (!checkbox) return;
-      const taskId = checkbox.dataset.taskId;
-      const taskName = checkbox.dataset.taskName;
-      const date = checkbox.dataset.date;
+      const boxButton = event.target.closest('button[data-action="toggle-preview-completed"]');
+      if (!boxButton) return;
+      const taskId = boxButton.dataset.taskId;
+      const taskName = boxButton.dataset.taskName;
+      const date = boxButton.dataset.date;
+      const nextCompletedState = !boxButton.classList.contains("is-checked");
       const key = getCompletionKey(date, taskId);
-      completions[key] = { taskId, taskName, date, completed: checkbox.checked };
-      tasks = tasks.map((task) => task.id === taskId ? { ...task, completed: checkbox.checked } : task);
+      completions[key] = { taskId, taskName, date, completed: nextCompletedState };
+      tasks = tasks.map((task) => task.id === taskId ? { ...task, completed: nextCompletedState } : task);
       saveTasks();
       saveCompletions();
       renderAllTasks();
+      renderPreviewTasks();
       renderAnalytics();
     }
 
@@ -1640,6 +2410,7 @@
     function printPreviewList() {
       const today = new Date();
       const dayAndDateText = formatDayAndDateLabel(today);
+      const todayDate = formatDate(today);
       const todayTasks = getTodayTasks();
       const grouped = groupTasksByCategory(todayTasks);
 
@@ -1648,8 +2419,10 @@
         if (items.length === 0) return "";
         const itemsHtml = items.map((task) => `
           <li>
-            <span class="box"></span>
-            <span>${escapeHtml(task.emoji || DEFAULT_EMOJI)} ${escapeHtml(task.name)}</span>
+            <div class="print-task-row">
+              <span class="check-box ${((completions[getCompletionKey(todayDate, task.id)]?.completed) || task.completed) ? "is-checked" : ""}" aria-hidden="true"></span>
+              <span class="task-text">${escapeHtml(task.emoji || DEFAULT_EMOJI)} ${escapeHtml(task.name)}</span>
+            </div>
           </li>
         `).join("");
         return `
@@ -1713,19 +2486,41 @@
             }
             li {
               margin-bottom: 9px;
+              list-style: none;
+            }
+            .print-task-row {
               display: flex;
               align-items: center;
-              gap: 10px;
+              gap: 12px;
               color: ${colors.taskColor};
               font-weight: 700;
             }
-            .box {
+            .task-text {
+              color: ${colors.taskColor};
+            }
+            .check-box {
               width: 32px;
               height: 32px;
-              border: 3px solid ${colors.boxColor};
-              border-radius: 6px;
               display: inline-block;
               flex: 0 0 32px;
+              border: 3px solid ${colors.boxColor};
+              border-radius: 6px;
+              background: #fff;
+              box-sizing: border-box;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+              position: relative;
+            }
+            .check-box.is-checked::after {
+              content: "✓";
+              position: absolute;
+              left: 50%;
+              top: 50%;
+              transform: translate(-50%, -58%);
+              color: ${colors.checkColor || "#16a34a"};
+              font-size: 24px;
+              font-weight: 800;
+              line-height: 1;
             }
             .footer {
               margin-top: 30px;
@@ -1769,29 +2564,35 @@
       }
 
       await prepareAnalyticsCapture();
-      const canvas = await html2canvas(analyticsContent, {
-        scale: 2,
-        backgroundColor: "#ffffff",
-        useCORS: true
-      });
-      const imgData = canvas.toDataURL("image/png");
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
       const imgWidth = pdfWidth - 20;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      let heightLeft = imgHeight;
-      let position = 10;
-      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-      heightLeft -= (pdfHeight - 20);
+      async function addSectionToPdf(sectionElement, addNewPage = false) {
+        if (!sectionElement) return;
+        const canvas = await html2canvas(sectionElement, {
+          scale: 2,
+          backgroundColor: "#ffffff",
+          useCORS: true
+        });
+        const imgData = canvas.toDataURL("image/png");
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        if (addNewPage) {
+          pdf.addPage();
+        }
+        pdf.addImage(imgData, "PNG", 10, 10, imgWidth, Math.min(imgHeight, 277));
+      }
 
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight + 10;
+      await addSectionToPdf(analyticsInfoPage, false);
+      await addSectionToPdf(analyticsChartsPage, true);
+
+      // Keep strict two-page output (information + charts).
+      while (pdf.getNumberOfPages() > 2) {
+        pdf.deletePage(pdf.getNumberOfPages());
+      }
+      while (pdf.getNumberOfPages() < 2) {
         pdf.addPage();
-        pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-        heightLeft -= (pdfHeight - 20);
       }
 
       pdf.save("family-task-analytics.pdf");
@@ -1805,7 +2606,8 @@
         savedTaskNames,
         taskNameMeta,
         colors,
-        completions
+        completions,
+        dailyLists
       };
       const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -1886,6 +2688,10 @@
             completions = { ...completions, ...incomingCompletions };
             saveCompletions();
           }
+          if (parsed.dailyLists && typeof parsed.dailyLists === "object" && !Array.isArray(parsed.dailyLists)) {
+            dailyLists = { ...dailyLists, ...parsed.dailyLists };
+            saveDailyLists();
+          }
 
           tasks.forEach((task) => {
             ensureTaskNameSaved(task.name, task.emoji || taskNameMeta[task.name] || DEFAULT_EMOJI);
@@ -1893,6 +2699,7 @@
 
           applyColors();
           renderSavedTaskNames();
+          renderSavedDatesOptions();
           renderAllTasks();
           renderPreviewTasks();
           renderAnalytics();
@@ -1945,31 +2752,56 @@
 
     goAddBtn.addEventListener("click", () => {
       manageHint.textContent = "وضع الإضافة: أضف مهام جديدة.";
+      manageMode = "add";
+      updateManageTasksSectionVisibility();
       showView("manage");
       resetFormToAdd();
     });
     goEditBtn.addEventListener("click", () => {
       manageHint.textContent = "وضع التعديل: اختر مهمة من الأسفل واضغط تعديل.";
+      manageMode = "edit";
+      updateManageTasksSectionVisibility();
       showView("manage");
+      renderAllTasks();
     });
     goDeleteBtn.addEventListener("click", () => {
       manageHint.textContent = "وضع الحذف: اختر مهمة من الأسفل واضغط حذف.";
+      manageMode = "delete";
+      updateManageTasksSectionVisibility();
       showView("manage");
+      renderAllTasks();
     });
     goPreviewBtn.addEventListener("click", () => showView("preview"));
     goAnalyticsBtn.addEventListener("click", () => showView("analytics"));
+    goListsPageBtn.addEventListener("click", () => {
+      renderSavedDatesOptions();
+      listsViewMode = "single";
+      listsSearchDateKey = "";
+      if (listsDateInput) listsDateInput.value = "";
+      showView("lists");
+    });
     backFromManageBtn.addEventListener("click", () => showView("home"));
     backFromPreviewBtn.addEventListener("click", () => showView("home"));
     backFromAnalyticsBtn.addEventListener("click", () => showView("home"));
+    backFromListsBtn.addEventListener("click", () => showView("home"));
     taskForm.addEventListener("submit", handleSaveTask);
     cancelEditBtn.addEventListener("click", resetFormToAdd);
     allTasksList.addEventListener("click", handleTaskActions);
-    previewTasksList.addEventListener("change", handlePreviewCompletionChange);
+    previewTasksList.addEventListener("click", handlePreviewCompletionChange);
     printBtn.addEventListener("click", printPreviewList);
     printAnalyticsBtn.addEventListener("click", printAnalytics);
     exportPdfBtn.addEventListener("click", exportAnalyticsPdf);
     exportJsonBtn.addEventListener("click", exportDataAsJson);
     importJsonBtn.addEventListener("click", () => jsonFileInput.click());
+    restoreAutoBackupBtn.addEventListener("click", restoreLastAutomaticBackup);
+    printSelectedListBtn.addEventListener("click", printSelectedListFromListsPage);
+    exportSelectedListPdfBtn.addEventListener("click", exportSelectedListPdf);
+    searchListByDateBtn.addEventListener("click", searchListByDate);
+    showLast30ListsBtn.addEventListener("click", showLast30Lists);
+    deleteSelectedListsBtn.addEventListener("click", deleteSelectedListsHistory);
+    deleteAllListsBtn.addEventListener("click", deleteAllListsHistory);
+    selectAllListsDatesBtn.addEventListener("click", () => setAllListDatesSelection(true));
+    clearAllListsDatesBtn.addEventListener("click", () => setAllListDatesSelection(false));
     jsonFileInput.addEventListener("change", (event) => {
       importDataFromJsonFile(event.target.files?.[0] || null);
       jsonFileInput.value = "";
@@ -2011,13 +2843,22 @@
       renderPreviewTasks();
       renderAnalytics();
     });
+    checkColorInput.addEventListener("input", () => {
+      colors.checkColor = checkColorInput.value;
+      applyColors();
+      saveColors();
+      renderPreviewTasks();
+    });
 
     tasks.forEach((task) => ensureTaskNameSaved(task.name, task.emoji || DEFAULT_EMOJI));
     applyColors();
     renderSavedTaskNames();
+    renderSavedDatesOptions();
+    renderAutoBackupStatus();
     updateTopDate();
     initAnimatedBackground();
     maybeShowWhatsNewModal();
+    updateManageTasksSectionVisibility();
     toggleTypeBoxes();
     resetFormToAdd();
     renderAllTasks();
