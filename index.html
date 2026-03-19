@@ -993,7 +993,7 @@
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script>
-    const APP_VERSION = "1.4.0";
+    const APP_VERSION = "1.5.0";
     const TASKS_KEY = "familyTasks_v2";
     const LEGACY_TASK_KEYS = ["familyTasks_v1"];
     const COLORS_KEY = "familyTheme_v1";
@@ -2712,15 +2712,21 @@
       reader.readAsText(file, "utf-8");
     }
 
+    function getCurrentUpdateToken() {
+      const modified = (document.lastModified || "").trim();
+      return `${APP_VERSION}__${modified}`;
+    }
+
     function maybeShowWhatsNewModal() {
       const acknowledgedVersion = localStorage.getItem(ACK_VERSION_KEY);
+      const token = getCurrentUpdateToken();
       updatesVersionText.textContent = `Version: ${APP_VERSION}`;
-      if (acknowledgedVersion === APP_VERSION) return;
+      if (acknowledgedVersion === token) return;
       updatesModalOverlay.classList.add("open");
     }
 
     function dismissWhatsNewModal() {
-      localStorage.setItem(ACK_VERSION_KEY, APP_VERSION);
+      localStorage.setItem(ACK_VERSION_KEY, getCurrentUpdateToken());
       updatesModalOverlay.classList.remove("open");
     }
 
