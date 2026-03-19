@@ -19,6 +19,7 @@
       --task-color: #111827;
       --box-color: #2563eb;
       --check-color: #16a34a;
+      --bg-icons-opacity: 0.34;
       --radius: 14px;
       --shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
     }
@@ -35,6 +36,7 @@
       color: var(--text);
       line-height: 1.6;
       padding: 16px;
+      padding-bottom: 92px;
       position: relative;
       overflow-x: hidden;
     }
@@ -45,7 +47,7 @@
       pointer-events: none;
       z-index: 0;
       overflow: hidden;
-      opacity: 0.2;
+      opacity: var(--bg-icons-opacity);
     }
 
     .bg-item {
@@ -146,41 +148,113 @@
       grid-template-columns: repeat(3, minmax(150px, 1fr));
     }
 
+    .home-buttons button {
+      min-height: 56px;
+      border-radius: 14px;
+      padding: 8px 6px;
+      text-align: center;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(960px, calc(100% - 20px));
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 8px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      z-index: 50;
+      backdrop-filter: blur(8px);
+    }
+
+    .bottom-nav-btn {
+      padding: 10px 8px;
+      border-radius: 12px;
+      background: transparent;
+      color: #475569;
+      font-size: 0.86rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+
+    .bottom-nav-btn.active {
+      background: #e8f0ff;
+      color: #1d4ed8;
+      border-color: #c7d8ff;
+    }
+
+    @keyframes introWiggle {
+      0% { transform: translateX(0); }
+      8% { transform: translateX(-0.8px) rotate(-0.3deg); }
+      16% { transform: translateX(0.9px) rotate(0.3deg); }
+      24% { transform: translateX(-0.8px) rotate(-0.25deg); }
+      32% { transform: translateX(0.7px) rotate(0.25deg); }
+      40% { transform: translateX(-0.6px) rotate(-0.2deg); }
+      48% { transform: translateX(0.5px) rotate(0.2deg); }
+      56% { transform: translateX(-0.45px) rotate(-0.15deg); }
+      64% { transform: translateX(0.35px) rotate(0.15deg); }
+      72% { transform: translateX(-0.25px) rotate(-0.1deg); }
+      84% { transform: translateX(0.15px) rotate(0.08deg); }
+      100% { transform: translateX(0) rotate(0); }
+    }
+
+    body.intro-wiggle button {
+      animation: introWiggle 3s ease;
+    }
+
     button {
       border: none;
-      border-radius: 10px;
-      padding: 11px 14px;
+      border-radius: 12px;
+      padding: 8px 11px;
+      min-height: 42px;
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 0.9rem;
       font-weight: 700;
-      transition: 0.15s;
+      transition: transform 0.16s ease, box-shadow 0.2s ease, background-color 0.18s ease, color 0.18s ease;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      border: 1px solid transparent;
     }
 
     .btn-main {
-      background: var(--primary);
+      background: linear-gradient(135deg, var(--primary), #1d4ed8);
       color: #fff;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.28);
     }
 
     .btn-main:hover {
-      background: var(--primary-dark);
+      background: linear-gradient(135deg, var(--primary-dark), #1e40af);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.32);
     }
 
     .btn-back {
-      background: #e5e7eb;
-      color: #1f2937;
+      background: #f8fafc;
+      color: #334155;
+      border-color: #dbe4ef;
     }
 
     .btn-back:hover {
-      background: #d1d5db;
+      background: #f1f5f9;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(15, 23, 42, 0.12);
     }
 
     .btn-delete {
-      background: #fee2e2;
-      color: var(--danger);
+      background: #fff1f2;
+      color: #be123c;
+      border-color: #fecdd3;
+      box-shadow: 0 8px 16px rgba(190, 24, 93, 0.12);
     }
 
     .btn-delete:hover {
-      background: #fecaca;
+      background: #ffe4e6;
+      transform: translateY(-1px);
     }
 
     .btn-edit {
@@ -190,46 +264,55 @@
 
     .btn-edit:hover {
       background: #bfdbfe;
+      transform: translateY(-1px);
     }
 
     .btn-print {
-      background: #0f766e;
+      background: linear-gradient(135deg, #0f766e, #0d625c);
       color: #fff;
       width: 100%;
       margin-top: 16px;
       padding: 14px;
       font-size: 1.06rem;
+      box-shadow: 0 10px 18px rgba(15, 118, 110, 0.24);
     }
 
     .btn-print:hover {
-      background: #0d625c;
+      transform: translateY(-1px);
     }
 
     .btn-pdf {
-      background: #7c3aed;
+      background: linear-gradient(135deg, #7c3aed, #6d28d9);
       color: #fff;
+      box-shadow: 0 10px 18px rgba(124, 58, 237, 0.22);
     }
 
     .btn-pdf:hover {
-      background: #6d28d9;
+      transform: translateY(-1px);
     }
 
     .btn-export {
-      background: #065f46;
+      background: linear-gradient(135deg, #065f46, #064e3b);
       color: #fff;
+      box-shadow: 0 9px 16px rgba(6, 95, 70, 0.22);
     }
 
     .btn-export:hover {
-      background: #064e3b;
+      transform: translateY(-1px);
     }
 
     .btn-import {
-      background: #0f766e;
+      background: linear-gradient(135deg, #0f766e, #0b6159);
       color: #fff;
+      box-shadow: 0 9px 16px rgba(15, 118, 110, 0.2);
     }
 
     .btn-import:hover {
-      background: #0b6159;
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0) scale(0.98);
     }
 
     .btn-row {
@@ -237,6 +320,10 @@
       flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 12px;
+    }
+
+    .view h2 {
+      margin-bottom: 6px;
     }
 
     form {
@@ -432,7 +519,7 @@
       align-items: center;
       gap: 8px;
       color: var(--muted);
-      font-size: 0.92rem;
+      font-size: 0.86rem;
       user-select: none;
     }
 
@@ -697,7 +784,6 @@
     }
 
     @media (max-width: 768px) {
-      .home-buttons,
       .grid,
       .grid-3,
       .schedule-types,
@@ -705,6 +791,15 @@
       .analytics-layout,
       .stats-grid {
         grid-template-columns: 1fr;
+      }
+
+      .home-buttons {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .home-buttons button {
+        min-height: 52px;
+        font-size: 0.84rem;
       }
 
       .days-grid {
@@ -718,6 +813,29 @@
       .top-date {
         font-size: 0.85rem;
       }
+
+      .container {
+        gap: 12px;
+        padding-bottom: 90px;
+      }
+
+      .header-card {
+        min-height: 64px;
+        padding: 14px 10px;
+      }
+
+      .card {
+        padding: 14px;
+      }
+
+      .bottom-nav {
+        grid-template-columns: repeat(5, 1fr);
+      }
+
+      .bottom-nav-btn {
+        font-size: 0.78rem;
+        padding: 10px 4px;
+      }
     }
   </style>
 </head>
@@ -730,24 +848,44 @@
     </header>
 
     <section id="homeView" class="card view active">
-      <h2>الصفحة الرئيسية</h2>
-      <p class="muted" style="margin-bottom:12px;">اختر الإجراء الذي تريد تنفيذه:</p>
-      <div class="home-buttons">
-        <button id="goAddBtn" class="btn-main">إضافة قائمة</button>
-        <button id="goEditBtn" class="btn-main">تعديل قائمة</button>
-        <button id="goDeleteBtn" class="btn-main">حذف قائمة</button>
-        <button id="goPreviewBtn" class="btn-main">معاينة القائمة</button>
-        <button id="goAnalyticsBtn" class="btn-main">التحليلات والإحصائيات</button>
-        <button id="goListsPageBtn" class="btn-main">صفحة القوائم</button>
+      <h2>الرئيسية</h2>
+      <p class="muted" style="margin-bottom:12px;">لوحة سريعة لمتابعة مهام اليوم.</p>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <strong id="homeTodayCount">0</strong>
+          <span>مهام اليوم</span>
+        </div>
+        <div class="stat-card">
+          <strong id="homeDoneCount">0</strong>
+          <span>المنجز</span>
+        </div>
+        <div class="stat-card">
+          <strong id="homeRemainCount">0</strong>
+          <span>المتبقي</span>
+        </div>
+        <div class="stat-card">
+          <strong id="homeBackupText">-</strong>
+          <span>آخر نسخة تلقائية</span>
+        </div>
       </div>
+
+      <h3 style="margin: 10px 0 8px;">إجراءات سريعة</h3>
+      <div class="home-buttons">
+        <button id="qaAddTaskBtn" class="btn-main">إضافة مهمة</button>
+        <button id="qaTasksBtn" class="btn-main">عرض المهام</button>
+        <button id="qaAnalyticsBtn" class="btn-main">التحليلات</button>
+        <button id="goListsPageBtn" class="btn-back">صفحة القوائم</button>
+      </div>
+
+      <h3 style="margin: 14px 0 8px;">معاينة سريعة لمهام اليوم</h3>
+      <div id="homeTodayMiniList" class="list"></div>
+      <p id="homeBackupInfo" class="muted" style="margin-top:8px;"></p>
     </section>
 
     <section id="manageView" class="card view">
-      <div class="btn-row">
-        <button id="backFromManageBtn" class="btn-back">الرجوع للرئيسية</button>
-      </div>
-      <h2>إدارة القائمة</h2>
-      <p id="manageHint" class="muted">يمكنك الآن إضافة مهام جديدة أو تعديل وحذف المهام الحالية.</p>
+      <h2>إضافة / تعديل مهمة</h2>
+      <p id="manageHint" class="muted">أدخل بيانات المهمة واحفظها.</p>
 
       <form id="taskForm">
         <input id="editingTaskId" type="hidden">
@@ -808,57 +946,29 @@
         </div>
 
         <div class="btn-row">
-          <button id="submitBtn" type="submit" class="btn-main">إضافة المهمة</button>
+          <button id="submitBtn" type="submit" class="btn-main">حفظ المهمة</button>
           <button id="cancelEditBtn" type="button" class="btn-back" style="display:none;">إلغاء التعديل</button>
         </div>
       </form>
-
-      <h2 style="margin-top:16px;">نسخ احتياطي للبيانات</h2>
-      <div class="btn-row">
-        <button id="exportJsonBtn" class="btn-export">تصدير البيانات JSON</button>
-        <button id="importJsonBtn" class="btn-import">استيراد البيانات JSON</button>
-        <button id="restoreAutoBackupBtn" class="btn-back">استعادة آخر نسخة تلقائية</button>
-        <input id="jsonFileInput" type="file" accept="application/json" class="hidden">
-      </div>
-      <p id="autoBackupStatus" class="muted">آخر نسخة احتياطية تلقائية: لم يتم بعد</p>
-
-      <h2 style="margin-top:16px;">تخصيص الألوان</h2>
-      <div class="color-grid">
-        <div class="color-field">
-          <label for="titleColorInput">لون العنوان</label>
-          <input id="titleColorInput" type="color">
-        </div>
-        <div class="color-field">
-          <label for="dateColorInput">لون التاريخ</label>
-          <input id="dateColorInput" type="color">
-        </div>
-        <div class="color-field">
-          <label for="taskColorInput">لون المهام</label>
-          <input id="taskColorInput" type="color">
-        </div>
-        <div class="color-field">
-          <label for="boxColorInput">لون المربعات</label>
-          <input id="boxColorInput" type="color">
-        </div>
-        <div class="color-field">
-          <label for="checkColorInput">لون علامة الصح</label>
-          <input id="checkColorInput" type="color">
-        </div>
-      </div>
-
-      <section id="manageTasksSection">
-        <h2 style="margin-top:16px;">كل المهام</h2>
-        <div id="allTasksList" class="list"></div>
-      </section>
     </section>
 
     <section id="previewView" class="card view">
-      <div class="btn-row">
-        <button id="backFromPreviewBtn" class="btn-back">الرجوع للرئيسية</button>
+      <h2>المهام</h2>
+      <p class="muted">استعرض المهام، عدّل حالة الإنجاز، واطبع قائمة اليوم.</p>
+      <div class="btn-row" style="margin-top:10px;">
+        <button id="tasksFilterTodayBtn" class="btn-back">اليوم</button>
+        <button id="tasksFilterWeekBtn" class="btn-back">الأسبوع</button>
+        <button id="tasksFilterAllBtn" class="btn-back">الكل</button>
+        <select id="tasksStatusFilter" style="min-width: 140px;">
+          <option value="all">الكل</option>
+          <option value="done">منجزة</option>
+          <option value="todo">غير منجزة</option>
+        </select>
       </div>
-      <h2>معاينة القائمة (مهام اليوم)</h2>
       <p id="todayInfo" class="muted"></p>
       <div id="previewTasksList" class="list"></div>
+      <h3 style="margin-top:14px;">كل المهام (تعديل/حذف)</h3>
+      <div id="allTasksList" class="list"></div>
       <button id="printBtn" class="btn-print">طباعة القائمة</button>
     </section>
 
@@ -932,9 +1042,6 @@
     </section>
 
     <section id="listsView" class="card view">
-      <div class="btn-row">
-        <button id="backFromListsBtn" class="btn-back">الرجوع للرئيسية</button>
-      </div>
       <h2>صفحة القوائم</h2>
       <p class="muted">اختر تاريخًا لعرض قائمة ذلك اليوم، ثم اطبعها أو صدّرها PDF.</p>
 
@@ -969,6 +1076,56 @@
         <button id="deleteAllListsBtn" class="btn-delete">حذف جميع القوائم من الهيستوري</button>
       </div>
     </section>
+
+    <section id="settingsView" class="card view">
+      <h2>الإعدادات</h2>
+      <p class="muted">إدارة النسخ الاحتياطية وتخصيص ألوان التطبيق.</p>
+
+      <h3 style="margin-top:12px;">نسخ احتياطي للبيانات</h3>
+      <div class="btn-row">
+        <button id="exportJsonBtn" class="btn-export">تصدير البيانات JSON</button>
+        <button id="importJsonBtn" class="btn-import">استيراد البيانات JSON</button>
+        <button id="restoreAutoBackupBtn" class="btn-back">استعادة آخر نسخة تلقائية</button>
+        <input id="jsonFileInput" type="file" accept="application/json" class="hidden">
+      </div>
+      <p id="autoBackupStatus" class="muted">آخر نسخة احتياطية تلقائية: لم يتم بعد</p>
+
+      <h3 style="margin-top:12px;">تخصيص الألوان</h3>
+      <div class="color-grid">
+        <div class="color-field">
+          <label for="titleColorInput">لون العنوان</label>
+          <input id="titleColorInput" type="color">
+        </div>
+        <div class="color-field">
+          <label for="dateColorInput">لون التاريخ</label>
+          <input id="dateColorInput" type="color">
+        </div>
+        <div class="color-field">
+          <label for="taskColorInput">لون المهام</label>
+          <input id="taskColorInput" type="color">
+        </div>
+        <div class="color-field">
+          <label for="boxColorInput">لون المربعات</label>
+          <input id="boxColorInput" type="color">
+        </div>
+        <div class="color-field">
+          <label for="checkColorInput">لون علامة الصح</label>
+          <input id="checkColorInput" type="color">
+        </div>
+        <div class="color-field">
+          <label for="bgIntensityInput">درجة لون الخلفية المتحركة</label>
+          <input id="bgIntensityInput" type="range" min="0.10" max="0.70" step="0.01">
+        </div>
+      </div>
+    </section>
+
+    <nav class="bottom-nav" aria-label="التنقل الرئيسي">
+      <button id="navHomeBtn" class="bottom-nav-btn active">الرئيسية</button>
+      <button id="navTasksBtn" class="bottom-nav-btn">المهام</button>
+      <button id="navAddBtn" class="bottom-nav-btn">إضافة</button>
+      <button id="navAnalyticsBtn" class="bottom-nav-btn">التحليلات</button>
+      <button id="navSettingsBtn" class="bottom-nav-btn">الإعدادات</button>
+    </nav>
   </div>
 
   <div id="updatesModalOverlay" class="updates-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="updatesTitle">
@@ -1021,12 +1178,16 @@
     const previewView = document.getElementById("previewView");
     const analyticsView = document.getElementById("analyticsView");
     const listsView = document.getElementById("listsView");
+    const settingsView = document.getElementById("settingsView");
     const goAddBtn = document.getElementById("goAddBtn");
     const goEditBtn = document.getElementById("goEditBtn");
     const goDeleteBtn = document.getElementById("goDeleteBtn");
     const goPreviewBtn = document.getElementById("goPreviewBtn");
     const goAnalyticsBtn = document.getElementById("goAnalyticsBtn");
     const goListsPageBtn = document.getElementById("goListsPageBtn");
+    const qaAddTaskBtn = document.getElementById("qaAddTaskBtn");
+    const qaTasksBtn = document.getElementById("qaTasksBtn");
+    const qaAnalyticsBtn = document.getElementById("qaAnalyticsBtn");
     const backFromManageBtn = document.getElementById("backFromManageBtn");
     const backFromPreviewBtn = document.getElementById("backFromPreviewBtn");
     const backFromAnalyticsBtn = document.getElementById("backFromAnalyticsBtn");
@@ -1050,6 +1211,10 @@
     const allTasksList = document.getElementById("allTasksList");
     const todayInfo = document.getElementById("todayInfo");
     const previewTasksList = document.getElementById("previewTasksList");
+    const tasksFilterTodayBtn = document.getElementById("tasksFilterTodayBtn");
+    const tasksFilterWeekBtn = document.getElementById("tasksFilterWeekBtn");
+    const tasksFilterAllBtn = document.getElementById("tasksFilterAllBtn");
+    const tasksStatusFilter = document.getElementById("tasksStatusFilter");
     const printBtn = document.getElementById("printBtn");
     const exportJsonBtn = document.getElementById("exportJsonBtn");
     const importJsonBtn = document.getElementById("importJsonBtn");
@@ -1074,6 +1239,7 @@
     const taskColorInput = document.getElementById("taskColorInput");
     const boxColorInput = document.getElementById("boxColorInput");
     const checkColorInput = document.getElementById("checkColorInput");
+    const bgIntensityInput = document.getElementById("bgIntensityInput");
 
     const statTotalTasks = document.getElementById("statTotalTasks");
     const statUniqueTasks = document.getElementById("statUniqueTasks");
@@ -1091,6 +1257,17 @@
     const updatesModalOverlay = document.getElementById("updatesModalOverlay");
     const dismissUpdatesBtn = document.getElementById("dismissUpdatesBtn");
     const updatesVersionText = document.getElementById("updatesVersionText");
+    const navHomeBtn = document.getElementById("navHomeBtn");
+    const navTasksBtn = document.getElementById("navTasksBtn");
+    const navAddBtn = document.getElementById("navAddBtn");
+    const navAnalyticsBtn = document.getElementById("navAnalyticsBtn");
+    const navSettingsBtn = document.getElementById("navSettingsBtn");
+    const homeTodayCount = document.getElementById("homeTodayCount");
+    const homeDoneCount = document.getElementById("homeDoneCount");
+    const homeRemainCount = document.getElementById("homeRemainCount");
+    const homeBackupText = document.getElementById("homeBackupText");
+    const homeTodayMiniList = document.getElementById("homeTodayMiniList");
+    const homeBackupInfo = document.getElementById("homeBackupInfo");
 
     let tasks = loadTasks();
     let colors = loadColors();
@@ -1101,6 +1278,8 @@
     let manageMode = "add";
     let listsViewMode = "single";
     let listsSearchDateKey = "";
+    let tasksRangeFilter = "today";
+    let tasksCompletionFilter = "all";
     let frequencyChartInstance = null;
     let shareChartInstance = null;
     let completionChartInstance = null;
@@ -1155,6 +1334,7 @@
       localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
       createAutomaticBackup();
       renderAutoBackupStatus();
+      renderHomeDashboard();
     }
 
     function loadDailyLists() {
@@ -1362,7 +1542,8 @@
         dateColor: "#0f766e",
         taskColor: "#111827",
         boxColor: "#2563eb",
-        checkColor: "#16a34a"
+        checkColor: "#16a34a",
+        bgIntensity: "0.34"
       };
       const raw = localStorage.getItem(COLORS_KEY);
       if (!raw) return defaults;
@@ -1383,23 +1564,29 @@
       document.documentElement.style.setProperty("--task-color", colors.taskColor);
       document.documentElement.style.setProperty("--box-color", colors.boxColor);
       document.documentElement.style.setProperty("--check-color", colors.checkColor);
+      const intensity = Math.min(0.7, Math.max(0.1, Number(colors.bgIntensity || 0.34)));
+      document.documentElement.style.setProperty("--bg-icons-opacity", String(intensity));
       titleColorInput.value = colors.titleColor;
       dateColorInput.value = colors.dateColor;
       taskColorInput.value = colors.taskColor;
       boxColorInput.value = colors.boxColor;
       checkColorInput.value = colors.checkColor;
+      if (bgIntensityInput) bgIntensityInput.value = String(intensity);
     }
 
     function showView(viewName) {
-      [homeView, manageView, previewView, analyticsView, listsView].forEach((view) => view.classList.remove("active"));
+      [homeView, manageView, previewView, analyticsView, listsView, settingsView].forEach((view) => view.classList.remove("active"));
       if (viewName === "home") homeView.classList.add("active");
       if (viewName === "manage") manageView.classList.add("active");
       if (viewName === "preview") previewView.classList.add("active");
       if (viewName === "analytics") analyticsView.classList.add("active");
       if (viewName === "lists") listsView.classList.add("active");
+      if (viewName === "settings") settingsView.classList.add("active");
       if (viewName === "preview") renderPreviewTasks();
       if (viewName === "analytics") renderAnalytics();
       if (viewName === "lists") renderListsView();
+      renderBottomNavActive(viewName);
+      runButtonsIntroWiggle();
     }
 
     function formatDate(dateObj) {
@@ -1562,6 +1749,31 @@
       return tasks.filter((task) => isTaskForToday(task, today));
     }
 
+    function startOfWeek(dateObj) {
+      const date = new Date(dateObj);
+      const day = date.getDay();
+      date.setDate(date.getDate() - day);
+      date.setHours(0, 0, 0, 0);
+      return date;
+    }
+
+    function getTasksForCurrentWeek() {
+      const today = new Date();
+      const start = startOfWeek(today);
+      const dates = Array.from({ length: 7 }).map((_, idx) => {
+        const d = new Date(start);
+        d.setDate(start.getDate() + idx);
+        return d;
+      });
+      return tasks.filter((task) => dates.some((dateObj) => isTaskForToday(task, dateObj)));
+    }
+
+    function getTasksForRange() {
+      if (tasksRangeFilter === "all") return [...tasks];
+      if (tasksRangeFilter === "week") return getTasksForCurrentWeek();
+      return getTodayTasks();
+    }
+
     function updateManageTasksSectionVisibility() {
       if (!manageTasksSection) return;
       manageTasksSection.style.display = manageMode === "add" ? "none" : "block";
@@ -1674,17 +1886,27 @@
 
     function renderPreviewTasks() {
       const today = new Date();
-      todayInfo.textContent = formatDayAndDateLabel(today);
+      const filterLabel = tasksRangeFilter === "all" ? "عرض: كل المهام" : tasksRangeFilter === "week" ? "عرض: مهام الأسبوع" : "عرض: مهام اليوم";
+      todayInfo.textContent = `${formatDayAndDateLabel(today)} - ${filterLabel}`;
       const todayDate = formatDate(today);
 
-      const todayTasks = getTodayTasks();
-      ensureDailyListSnapshot(todayDate, todayTasks);
-      renderSavedDatesOptions();
-      const grouped = groupTasksByCategory(todayTasks);
+      let selectedTasks = getTasksForRange();
+      if (tasksCompletionFilter === "done") {
+        selectedTasks = selectedTasks.filter((task) => Boolean(task.completed));
+      } else if (tasksCompletionFilter === "todo") {
+        selectedTasks = selectedTasks.filter((task) => !task.completed);
+      }
+
+      if (tasksRangeFilter === "today") {
+        ensureDailyListSnapshot(todayDate, selectedTasks);
+        renderSavedDatesOptions();
+      }
+
+      const grouped = groupTasksByCategory(selectedTasks);
       previewTasksList.innerHTML = "";
 
-      if (todayTasks.length === 0) {
-        previewTasksList.innerHTML = '<p class="empty">لا توجد مهام مطلوبة اليوم.</p>';
+      if (selectedTasks.length === 0) {
+        previewTasksList.innerHTML = '<p class="empty">لا توجد مهام مطابقة للفلتر الحالي.</p>';
         return;
       }
 
@@ -2381,6 +2603,59 @@
       renderCharts(data);
     }
 
+    function renderBottomNavActive(viewName) {
+      const navMap = {
+        home: navHomeBtn,
+        preview: navTasksBtn,
+        manage: navAddBtn,
+        analytics: navAnalyticsBtn,
+        settings: navSettingsBtn,
+        lists: navTasksBtn
+      };
+      [navHomeBtn, navTasksBtn, navAddBtn, navAnalyticsBtn, navSettingsBtn].forEach((btn) => {
+        if (!btn) return;
+        btn.classList.remove("active");
+      });
+      const activeBtn = navMap[viewName];
+      if (activeBtn) activeBtn.classList.add("active");
+    }
+
+    function renderHomeDashboard() {
+      if (!homeTodayCount || !homeTodayMiniList) return;
+      const todayTasks = getTodayTasks();
+      const completedToday = todayTasks.filter((task) => {
+        const todayKey = formatDate(new Date());
+        const completion = completions[getCompletionKey(todayKey, task.id)]?.completed;
+        return typeof completion === "boolean" ? completion : Boolean(task.completed);
+      }).length;
+      const remaining = Math.max(0, todayTasks.length - completedToday);
+
+      homeTodayCount.textContent = String(todayTasks.length);
+      homeDoneCount.textContent = String(completedToday);
+      homeRemainCount.textContent = String(remaining);
+
+      const ts = localStorage.getItem(AUTO_BACKUP_TS_KEY);
+      const tsFormatted = ts ? formatBackupTimestampArabic(ts) : "لم يتم بعد";
+      homeBackupText.textContent = tsFormatted || "لم يتم بعد";
+      homeBackupInfo.textContent = `آخر نسخة احتياطية تلقائية: ${tsFormatted || "لم يتم بعد"}`;
+
+      if (!todayTasks.length) {
+        homeTodayMiniList.innerHTML = '<p class="empty">لا توجد مهام اليوم حاليًا.</p>';
+        return;
+      }
+
+      homeTodayMiniList.innerHTML = "";
+      todayTasks.slice(0, 4).forEach((task) => {
+        const row = document.createElement("div");
+        row.className = `task-item${task.completed ? " completed" : ""}`;
+        row.innerHTML = `
+          <div class="task-name">${escapeHtml(task.emoji || DEFAULT_EMOJI)} ${escapeHtml(task.name)}</div>
+          <div class="meta">${escapeHtml(task.category)} | ${escapeHtml(getScheduleText(task))}</div>
+        `;
+        homeTodayMiniList.appendChild(row);
+      });
+    }
+
     function wait(ms) {
       return new Promise((resolve) => setTimeout(resolve, ms));
     }
@@ -2747,6 +3022,13 @@
       }
     }
 
+    function runButtonsIntroWiggle() {
+      document.body.classList.add("intro-wiggle");
+      setTimeout(() => {
+        document.body.classList.remove("intro-wiggle");
+      }, 3000);
+    }
+
     function escapeHtml(value) {
       return String(value)
         .replace(/&/g, "&amp;")
@@ -2756,40 +3038,54 @@
         .replace(/'/g, "&#39;");
     }
 
-    goAddBtn.addEventListener("click", () => {
+    const openAddView = () => {
       manageHint.textContent = "وضع الإضافة: أضف مهام جديدة.";
       manageMode = "add";
       updateManageTasksSectionVisibility();
       showView("manage");
       resetFormToAdd();
-    });
-    goEditBtn.addEventListener("click", () => {
+    };
+
+    const openEditView = () => {
       manageHint.textContent = "وضع التعديل: اختر مهمة من الأسفل واضغط تعديل.";
       manageMode = "edit";
       updateManageTasksSectionVisibility();
-      showView("manage");
+      showView("preview");
       renderAllTasks();
-    });
-    goDeleteBtn.addEventListener("click", () => {
+    };
+
+    const openDeleteView = () => {
       manageHint.textContent = "وضع الحذف: اختر مهمة من الأسفل واضغط حذف.";
       manageMode = "delete";
       updateManageTasksSectionVisibility();
-      showView("manage");
+      showView("preview");
       renderAllTasks();
-    });
-    goPreviewBtn.addEventListener("click", () => showView("preview"));
-    goAnalyticsBtn.addEventListener("click", () => showView("analytics"));
-    goListsPageBtn.addEventListener("click", () => {
+    };
+
+    if (goAddBtn) goAddBtn.addEventListener("click", openAddView);
+    if (goEditBtn) goEditBtn.addEventListener("click", openEditView);
+    if (goDeleteBtn) goDeleteBtn.addEventListener("click", openDeleteView);
+    if (goPreviewBtn) goPreviewBtn.addEventListener("click", () => showView("preview"));
+    if (goAnalyticsBtn) goAnalyticsBtn.addEventListener("click", () => showView("analytics"));
+    if (goListsPageBtn) goListsPageBtn.addEventListener("click", () => {
       renderSavedDatesOptions();
       listsViewMode = "single";
       listsSearchDateKey = "";
       if (listsDateInput) listsDateInput.value = "";
       showView("lists");
     });
-    backFromManageBtn.addEventListener("click", () => showView("home"));
-    backFromPreviewBtn.addEventListener("click", () => showView("home"));
-    backFromAnalyticsBtn.addEventListener("click", () => showView("home"));
-    backFromListsBtn.addEventListener("click", () => showView("home"));
+    if (qaAddTaskBtn) qaAddTaskBtn.addEventListener("click", openAddView);
+    if (qaTasksBtn) qaTasksBtn.addEventListener("click", () => showView("preview"));
+    if (qaAnalyticsBtn) qaAnalyticsBtn.addEventListener("click", () => showView("analytics"));
+    if (backFromManageBtn) backFromManageBtn.addEventListener("click", () => showView("home"));
+    if (backFromPreviewBtn) backFromPreviewBtn.addEventListener("click", () => showView("home"));
+    if (backFromAnalyticsBtn) backFromAnalyticsBtn.addEventListener("click", () => showView("home"));
+    if (backFromListsBtn) backFromListsBtn.addEventListener("click", () => showView("home"));
+    if (navHomeBtn) navHomeBtn.addEventListener("click", () => showView("home"));
+    if (navTasksBtn) navTasksBtn.addEventListener("click", () => showView("preview"));
+    if (navAddBtn) navAddBtn.addEventListener("click", () => showView("manage"));
+    if (navAnalyticsBtn) navAnalyticsBtn.addEventListener("click", () => showView("analytics"));
+    if (navSettingsBtn) navSettingsBtn.addEventListener("click", () => showView("settings"));
     taskForm.addEventListener("submit", handleSaveTask);
     cancelEditBtn.addEventListener("click", resetFormToAdd);
     allTasksList.addEventListener("click", handleTaskActions);
@@ -2802,12 +3098,28 @@
     restoreAutoBackupBtn.addEventListener("click", restoreLastAutomaticBackup);
     printSelectedListBtn.addEventListener("click", printSelectedListFromListsPage);
     exportSelectedListPdfBtn.addEventListener("click", exportSelectedListPdf);
-    searchListByDateBtn.addEventListener("click", searchListByDate);
-    showLast30ListsBtn.addEventListener("click", showLast30Lists);
-    deleteSelectedListsBtn.addEventListener("click", deleteSelectedListsHistory);
-    deleteAllListsBtn.addEventListener("click", deleteAllListsHistory);
-    selectAllListsDatesBtn.addEventListener("click", () => setAllListDatesSelection(true));
-    clearAllListsDatesBtn.addEventListener("click", () => setAllListDatesSelection(false));
+    if (searchListByDateBtn) searchListByDateBtn.addEventListener("click", searchListByDate);
+    if (showLast30ListsBtn) showLast30ListsBtn.addEventListener("click", showLast30Lists);
+    if (deleteSelectedListsBtn) deleteSelectedListsBtn.addEventListener("click", deleteSelectedListsHistory);
+    if (deleteAllListsBtn) deleteAllListsBtn.addEventListener("click", deleteAllListsHistory);
+    if (selectAllListsDatesBtn) selectAllListsDatesBtn.addEventListener("click", () => setAllListDatesSelection(true));
+    if (clearAllListsDatesBtn) clearAllListsDatesBtn.addEventListener("click", () => setAllListDatesSelection(false));
+    if (tasksFilterTodayBtn) tasksFilterTodayBtn.addEventListener("click", () => {
+      tasksRangeFilter = "today";
+      renderPreviewTasks();
+    });
+    if (tasksFilterWeekBtn) tasksFilterWeekBtn.addEventListener("click", () => {
+      tasksRangeFilter = "week";
+      renderPreviewTasks();
+    });
+    if (tasksFilterAllBtn) tasksFilterAllBtn.addEventListener("click", () => {
+      tasksRangeFilter = "all";
+      renderPreviewTasks();
+    });
+    if (tasksStatusFilter) tasksStatusFilter.addEventListener("change", () => {
+      tasksCompletionFilter = tasksStatusFilter.value;
+      renderPreviewTasks();
+    });
     jsonFileInput.addEventListener("change", (event) => {
       importDataFromJsonFile(event.target.files?.[0] || null);
       jsonFileInput.value = "";
@@ -2855,14 +3167,21 @@
       saveColors();
       renderPreviewTasks();
     });
+    if (bgIntensityInput) bgIntensityInput.addEventListener("input", () => {
+      colors.bgIntensity = bgIntensityInput.value;
+      applyColors();
+      saveColors();
+    });
 
     tasks.forEach((task) => ensureTaskNameSaved(task.name, task.emoji || DEFAULT_EMOJI));
     applyColors();
     renderSavedTaskNames();
     renderSavedDatesOptions();
     renderAutoBackupStatus();
+    renderHomeDashboard();
     updateTopDate();
     initAnimatedBackground();
+    runButtonsIntroWiggle();
     maybeShowWhatsNewModal();
     updateManageTasksSectionVisibility();
     toggleTypeBoxes();
